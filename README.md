@@ -34,7 +34,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Welcome to PlayCover! This software is all about allowing you to run iOS apps and games on Apple Silicon devices running macOS 12.0 or newer.
+Welcome to PlayCover! This software is all about allowing you to run iOS apps and games on Apple Silicon devices. This fork targets macOS 27; older macOS versions are outside its support scope.
 
 PlayCover works by putting applications through a wrapper which imitates an iPad. This allows the apps to run natively and perform very well.
 
@@ -61,6 +61,12 @@ Follow the instructions below to get Genshin Impact, and many other games, up an
 At the moment, PlayCover can only run on Apple Silicon Macs. This means that only devices with M-series SoCs (eg. M1) are supported.
 
 If you have an Intel Mac, you can explore alternatives like Bootcamp or emulators.
+
+### Building this macOS 27 fork
+
+Use Xcode 27 with the macOS 27 SDK, Carthage, and SwiftLint. The deployment target is macOS 27. Focused regression checks also run with the macOS 27 Command Line Tools: `bash scripts/test-macos27.sh`. See [test instructions](Tests/README.md) for coverage and full-build requirements.
+
+The upstream downloads below do not include unmerged changes from this fork.
 
 ### Download
 

@@ -13,7 +13,7 @@ class PlayApp: BaseApp {
 
     public static var bundleIDCache: [String] {
         get throws {
-            (try String(contentsOf: bundleIDCacheURL))
+            (try String(contentsOf: bundleIDCacheURL, encoding: .utf8))
                 .split(whereSeparator: \.isNewline)
                 .map { String($0) }
         }
@@ -21,16 +21,28 @@ class PlayApp: BaseApp {
 
     // MARK: - Instance State
     var displaySleepAssertionID: IOPMAssertionID?
-    public var isStarting = false
+    private let launchLock = NSLock()
+    private var starting = false
+    public var isStarting: Bool {
+        launchLock.lock()
+        defer { launchLock.unlock() }
+        return starting
+    }
+    @MainActor private var monitoredApp: NSRunningApplication?
+    @MainActor var hasActiveSession: Bool { monitoredApp?.isTerminated == false }
     var sessionDisableKeychain: Bool = false
 
     // MARK: - Init
-    override init(appUrl: URL) {
+    override convenience init(appUrl: URL) {
+        self.init(appUrl: appUrl, prepareForLaunch: true)
+    }
+
+    init(appUrl: URL, prepareForLaunch: Bool) {
         super.init(appUrl: appUrl)
+        guard prepareForLaunch else { return }
 
         keymapping.reloadKeymapCache()
 
-        removeAlias()
         createAlias()
 
         loadDiscordIPC()
@@ -61,10 +73,25 @@ class PlayApp: BaseApp {
     lazy var container = AppContainer(bundleId: info.bundleIdentifier)
 
     // MARK: - Launch
-    func launch() async {
-        do {
-            isStarting = true
+    private func beginLaunch() -> Bool {
+        launchLock.lock()
+        defer { launchLock.unlock() }
+        guard !starting else { return false }
+        starting = true
+        return true
+    }
 
+    private func finishLaunch() {
+        launchLock.lock()
+        defer { launchLock.unlock() }
+        starting = false
+    }
+
+    func launch() async {
+        guard beginLaunch() else { return }
+        defer { finishLaunch() }
+        var keyCoverUnlocked = false
+        do {
             if prohibitedToPlay {
                 await clearAllCache()
                 throw PlayCoverError.appProhibited
@@ -76,43 +103,42 @@ class PlayApp: BaseApp {
 
             if await VersionCheck.shared.checkNewVersion(myApp: self) { return }
 
-            settings.sync()
-
-            // Install PlugIns/localizations before signing so the bundle is fully
-            // assembled before its signature is sealed over its contents.
-            // If the app does not have PlayTools, do not install PlugIns
-            if hasPlayTools() {
-                try PlayTools.installPluginInIPA(url)
-            }
-
-            if try !Entitlements.areEntitlementsValid(app: self) {
-                sign()
-            }
-
-            if try !isInfoPlistSigned() {
-                try Shell.signApp(executable)
-            }
-
-            // Wait for keychain unlock to finish before continuing
+            try prepareLaunch()
             await unlockKeyCover()
+            keyCoverUnlocked = true
+            clearDebugAffectingEnvironment()
 
-            if try !PlayTools.isInstalled() {
-                Log.shared.error("PlayTools are not installed! Please move PlayCover.app into Applications!")
-            } else if try !Macho.isMachoValidArch(executable) {
-                Log.shared.error("The app threw an error during conversion.")
+            if settings.openWithLLDB {
+                try Shell.lldb(executable, withTerminalWindow: settings.openLLDBWithTerminal)
             } else {
-                // Clear any debug-related env vars that could affect the launched app
-                self.clearDebugAffectingEnvironment()
-
-                if settings.openWithLLDB {
-                    try Shell.lldb(executable, withTerminalWindow: settings.openLLDBWithTerminal)
-                } else {
-                    runAppExec() // Splitting to reduce complexity
-                }
+                try await runAppExec()
             }
-            isStarting = false
+            keyCoverUnlocked = false
         } catch {
             Log.shared.error(error)
+        }
+        if keyCoverUnlocked { lockKeyCover() }
+    }
+
+    private func prepareLaunch() throws {
+        settings.sync()
+        // Finish plugin installation before sealing the bundle signature.
+        if hasPlayTools() {
+            try PlayTools.installPluginInIPA(url)
+        }
+        if try !Entitlements.areEntitlementsValid(app: self) {
+            try sign()
+        }
+        if try !isInfoPlistSigned() {
+            try Shell.signApp(executable)
+        }
+        // Refresh the LaunchServices target after all plist and signature changes.
+        try refreshAlias()
+        guard try PlayTools.isInstalled() else {
+            throw "PlayTools are not installed! Please move PlayCover.app into Applications!"
+        }
+        guard try Macho.isMachoValidArch(executable) else {
+            throw "The app threw an error during conversion."
         }
     }
 }
@@ -152,7 +178,8 @@ extension PlayApp {
         }
     }
 
-    func runAppExec() {
+    @MainActor
+    func runAppExec() async throws {
         let config = NSWorkspace.OpenConfiguration()
 
         // Prevent propagating debugging-related variables to child process
@@ -163,29 +190,35 @@ extension PlayApp {
             unsetenv(key)
         }
 
-        NSWorkspace.shared.openApplication(
-            at: aliasURL,
-            configuration: config,
-            completionHandler: { runningApp, error in
-                guard error == nil else { return }
-                // Run a thread loop in the background to handle background tasks
-                Task(priority: .background) {
-                    if let runningApp = runningApp {
-                        while !(runningApp.isTerminated) {
-                            if runningApp.isActive {
-                                self.disableTimeOut()
-                            } else {
-                                self.enableTimeOut()
-                            }
-                            sleep(1)
-                        }
-                        sleep(1)
-                    }
-                    // Things that are run after the app is closed
+        let runningApp = try await NSWorkspace.shared.openApplication(at: aliasURL, configuration: config)
+        // Opening an already-running app activates it; keep its existing session monitor.
+        guard monitoredApp?.processIdentifier != runningApp.processIdentifier else { return }
+        monitoredApp = runningApp
+        Task { @MainActor in
+            defer {
+                // A quick relaunch can replace the session during the keychain grace period.
+                if self.monitoredApp === runningApp {
+                    self.enableTimeOut()
+                    self.monitoredApp = nil
                     self.lockKeyCover()
                 }
             }
-        )
+            while self.monitoredApp === runningApp && !runningApp.isTerminated {
+                if runningApp.isActive {
+                    self.disableTimeOut()
+                } else {
+                    self.enableTimeOut()
+                }
+                // Suspend instead of blocking a cooperative executor thread for the session's lifetime.
+                do {
+                    try await Task.sleep(for: .seconds(1))
+                } catch {
+                    return
+                }
+            }
+            if self.monitoredApp === runningApp { self.enableTimeOut() }
+            try? await Task.sleep(for: .seconds(1))
+        }
     }
 }
 
@@ -330,50 +363,13 @@ extension PlayApp {
         AppsVM.shared.fetchApps()
     }
 
-    func sign() {
-        do {
-            let tmpDir = FileManager.default.temporaryDirectory
-            let tmpEnts = tmpDir
-                .appendingEscapedPathComponent(ProcessInfo().globallyUniqueString)
-                .appendingPathExtension("plist")
-            let conf = try Entitlements.composeEntitlements(self)
-            try conf.store(tmpEnts)
-            try Shell.signAppWith(executable, entitlements: tmpEnts)
-            try FileManager.default.removeItem(at: tmpEnts)
-        } catch {
-            print(error)
-            Log.shared.error(error)
-        }
+    func sign() throws {
+        let tmpEnts = FileManager.default.temporaryDirectory
+            .appendingEscapedPathComponent(ProcessInfo().globallyUniqueString)
+            .appendingPathExtension("plist")
+        defer { try? FileManager.default.removeItem(at: tmpEnts) }
+        let conf = try Entitlements.composeEntitlements(self)
+        try conf.store(tmpEnts)
+        try Shell.signAppWith(executable, entitlements: tmpEnts)
     }
-}
-
-// MARK: - Policies
-extension PlayApp {
-    var prohibitedToPlay: Bool {
-        PlayApp.PROHIBITED_APPS.contains(info.bundleIdentifier)
-    }
-
-    var maliciousProhibited: Bool {
-        PlayApp.MALICIOUS_APPS.contains(info.bundleIdentifier)
-    }
-
-    static let PROHIBITED_APPS = [
-        "com.activision.callofduty.shooter",
-        "com.ea.ios.apexlegendsmobilefps",
-        "com.tencent.tmgp.cod",
-        "com.tencent.ig",
-        "com.pubg.newstate",
-        "com.pubg.imobile",
-        "com.tencent.tmgp.pubgmhd",
-        "com.dts.freefireth",
-        "com.dts.freefiremax",
-        "vn.vng.codmvn",
-        "com.ngame.allstar.eu",
-        "com.axlebolt.standoff2",
-        "com.tencent.lolm"
-    ]
-
-    static let MALICIOUS_APPS = [
-        "com.zhiliaoapp.musically"
-    ]
 }

@@ -115,14 +115,16 @@ class Installer {
 
                 if export {
                     finalURL = try ipa.packIPABack(app: app.url)
+                    try ipa.removeQuarantine(finalURL)
                 } else {
-                    finalURL = try wrap(app)
-                    let installedApp = PlayApp(appUrl: finalURL)
-
-                    installedApp.sign()
+                    finalURL = try wrap(app) { stagedURL in
+                        let stagedApp = PlayApp(appUrl: stagedURL, prepareForLaunch: false)
+                        try stagedApp.sign()
+                        try ipa.removeQuarantine(stagedURL)
+                    }
+                    _ = PlayApp(appUrl: finalURL)
                 }
 
-                try ipa.removeQuarantine(finalURL)
                 InstallVM.shared.next(.finish, 0.95, 1.0)
                 returnCompletion(finalURL)
             } catch {
@@ -170,6 +172,11 @@ class Installer {
 
         var resolved: [URL] = []
         let serialQueue = DispatchQueue(label: "baseAppUrlResolver")
+        let supportedMagic: [[UInt8]] = [
+            [202, 254, 186, 190], [202, 254, 186, 191],
+            [190, 186, 254, 202], [191, 186, 254, 202],
+            [207, 250, 237, 254], [254, 237, 250, 207]
+        ]
 
         baseApp.url.enumerateContents { url, attributes in
             guard attributes.isRegularFile == true, let fileSize = attributes.fileSize, fileSize > 4 else {
@@ -195,10 +202,8 @@ class Installer {
             }
 
             serialQueue.sync {
-                switch Array(data) {
-                case [202, 254, 186, 190]: resolved.append(url)
-                case [207, 250, 237, 254]: resolved.append(url)
-                default: return
+                if supportedMagic.contains(Array(data)) {
+                    resolved.append(url)
                 }
             }
         }
@@ -220,18 +225,13 @@ class Installer {
     }
 
     /// Generates a wrapper bundle for an iOS app that allows it to be launched from Finder and other macOS UIs
-    static func wrap(_ baseApp: BaseApp) throws -> URL {
+    static func wrap(_ baseApp: BaseApp, prepare: (URL) throws -> Void) throws -> URL {
         let info = AppInfo(contentsOf: baseApp.url
             .appendingPathComponent("Info")
             .appendingPathExtension("plist"))
         let location = AppsVM.appDirectory
             .appendingEscapedPathComponent(info.bundleIdentifier)
             .appendingPathExtension("app")
-        if FileManager.default.fileExists(atPath: location.path) {
-            try FileManager.default.removeItem(at: location)
-        }
-
-        try FileManager.default.moveItem(at: baseApp.url, to: location)
-        return location
+        return try InstallationTransaction.replace(at: location, with: baseApp.url, prepare: prepare)
     }
 }

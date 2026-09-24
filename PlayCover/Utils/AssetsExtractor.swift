@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AppKit
 
 struct AssetImage: CustomStringConvertible {
     let name: String
@@ -54,7 +55,11 @@ struct AssetsExtractor {
 
     func extractIcons() -> [NSImage] {
         var images = [NSImage]()
-        for assetImage in imagesList where assetImage.name.contains("AppIcon") {
+        // Loading every rendition in a game catalog can decode thousands of unrelated
+        // images. Filter names before asking CoreUI to materialize any renditions.
+        for name in catalog.allImageNames() where name.contains("AppIcon") {
+            guard !Task.isCancelled else { break }
+            let assetImage = assetImage(from: name)
             for namedImage in assetImage.namedImages {
                 guard let image = namedImage.asNSImage() else { continue }
                 images.append(image)

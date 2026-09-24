@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import DataCache
 
 enum BlockingTask {
     case none, playTools, introspection, iosFrameworks, applicationCategoryType
@@ -27,7 +26,6 @@ struct AppSettingsView: View {
     @State var hasAlias: Bool?
 
     @State private var currentTask = BlockingTask.none
-    @State private var cache = DataCache.instance
 
     var body: some View {
         VStack {
@@ -72,7 +70,8 @@ struct AppSettingsView: View {
                 }
             }
             .task(priority: .userInitiated) {
-                appIcon = cache.readImage(forKey: viewModel.app.info.bundleIdentifier)
+                appIcon = Cacher.shared.getLocalIcon(bundleId: viewModel.app.info.bundleIdentifier)
+                    ?? NSWorkspace.shared.icon(forFile: viewModel.app.url.path)
             }
 
             TabView {

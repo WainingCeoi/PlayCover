@@ -96,3 +96,6 @@ fastlane/test_output
 
 iOSInjectionProject/
 xcuserdata/*
+
+# Internal working notes are local only.
+.local-docs/
