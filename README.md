@@ -77,7 +77,7 @@ carthage update --use-xcframeworks --cache-builds
 FASTLANE=1 xcodebuild -project PlayCover.xcodeproj -scheme PlayCover -configuration Release \
   -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
   CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
-  CODE_SIGN_ENTITLEMENTS=PlayCover/PlayCoverPreview.entitlements \
+  PLAYCOVER_SIGNING_ENTITLEMENTS=PlayCover/PlayCoverPreview.entitlements \
   CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
   PROVISIONING_PROFILE_SPECIFIER= build
 bash scripts/package-macos27.sh
