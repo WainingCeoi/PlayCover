@@ -118,7 +118,7 @@ struct StoreAppConditionalView: View {
                                     if let image = localIcon {
                                         Image(nsImage: image)
                                             .resizable()
-                                            .aspectRatio(contentMode: .fit)
+                                            .scaledToFit()
                                     } else {
                                         Rectangle()
                                              .fill(.regularMaterial)
@@ -138,7 +138,7 @@ struct StoreAppConditionalView: View {
                                 image: {
                                     Image(nsImage: $0)
                                         .resizable()
-                                        .aspectRatio(contentMode: .fit)
+                                        .scaledToFit()
                                 },
                                 error: { _, retry in
                                     Rectangle()
@@ -186,7 +186,7 @@ struct StoreAppConditionalView: View {
                                     if let image = localIcon {
                                         Image(nsImage: image)
                                             .resizable()
-                                            .aspectRatio(contentMode: .fit)
+                                            .scaledToFit()
                                     } else {
                                         Rectangle()
                                              .fill(.regularMaterial)
@@ -207,7 +207,7 @@ struct StoreAppConditionalView: View {
                                 image: {
                                     Image(nsImage: $0)
                                         .resizable()
-                                        .aspectRatio(contentMode: .fit)
+                                        .scaledToFit()
                                 },
                                 error: { _, retry in
                                     Rectangle()
@@ -259,8 +259,8 @@ struct StoreAppConditionalView: View {
                 await Cacher.shared.resolveITunesData(app.itunesLookup)
             }
             itunesResponse = try? cache.readCodable(forKey: app.itunesLookup)
-            if let response = itunesResponse {
-                onlineIcon = response.results[0].artworkUrl512
+            if let result = itunesResponse?.results.first {
+                onlineIcon = result.artworkUrl512
             } else {
                 localIcon = Cacher.shared.getLocalIcon(bundleId: app.bundleID)
             }

@@ -34,7 +34,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Welcome to PlayCover! This software is all about allowing you to run iOS apps and games on Apple Silicon devices running macOS 12.0 or newer.
+Welcome to PlayCover! This software is all about allowing you to run iOS apps and games on Apple Silicon devices. This fork targets macOS 27; older macOS versions are outside its support scope.
 
 PlayCover works by putting applications through a wrapper which imitates an iPad. This allows the apps to run natively and perform very well.
 
@@ -61,6 +61,35 @@ Follow the instructions below to get Genshin Impact, and many other games, up an
 At the moment, PlayCover can only run on Apple Silicon Macs. This means that only devices with M-series SoCs (eg. M1) are supported.
 
 If you have an Intel Mac, you can explore alternatives like Bootcamp or emulators.
+
+### Downloading this macOS 27 fork
+
+Open this fork's **Actions → macOS 27 validation** workflow and choose a successful run for the branch you want. Download the **PlayCover-macOS27-arm64** artifact at the bottom of the run page (GitHub sign-in is required). Extract the downloaded ZIP, open `PlayCover-macOS27-arm64.dmg`, quit PlayCover, and drag the app to **Applications**. Keep a copy of the previous app if you want to revert. This replaces the app bundle without uninstalling your games.
+
+These preview builds are ad hoc signed and are not notarized. If macOS blocks opening a build you trust, try opening it once, then use **System Settings → Privacy & Security → Open Anyway**. The artifact includes a checksum and the source commit in `BUILD_INFO.txt`.
+
+### Building this macOS 27 fork locally
+
+Install Xcode 27, select it with `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`, and install Carthage and SwiftLint (`brew install carthage swiftlint`). From the repository directory:
+
+```sh
+carthage update --use-xcframeworks --cache-builds
+FASTLANE=1 xcodebuild -project PlayCover.xcodeproj -scheme PlayCover -configuration Release \
+  -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
+  CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
+  PLAYCOVER_SIGNING_ENTITLEMENTS=PlayCover/PlayCoverPreview.entitlements \
+  CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
+  PROVISIONING_PROFILE_SPECIFIER= build
+bash scripts/package-macos27.sh
+```
+
+The installable disk image is `build/download/PlayCover-macOS27-arm64.dmg`. Packaging verifies the signatures and launches the executable in an isolated startup-check mode before creating the DMG. Ad hoc builds use a dedicated preview entitlement so macOS can load the bundled Sparkle framework without an Apple Developer Team ID. Normal Developer ID release entitlements are unchanged. Focused regression checks also run with the macOS 27 Command Line Tools: `bash scripts/test-macos27.sh`. See [test instructions](Tests/README.md) for coverage.
+
+### Removing a remote IPA source
+
+Right-click the source folder under **IPA Library** and choose **Delete Source**, or open that source and click the trash button in its toolbar. You can also use **PlayCover → Settings → IPA Sources**: select one or more rows, then click **Delete Source** or press Delete. Removing a source removes its catalog from PlayCover; it does not uninstall apps already installed from it. Hover over similarly named sidebar entries to see their source URLs.
+
+The upstream downloads below do not include unmerged changes from this fork.
 
 ### Download
 

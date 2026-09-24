@@ -49,16 +49,13 @@ public class IPA {
     }
 
     func packIPABack(app: URL) throws -> URL {
-        let payload = app.deletingPathExtension().deletingLastPathComponent()
         let name = app.deletingPathExtension().lastPathComponent
 
         let newIpa = getDocumentsDirectory()
             .appendingEscapedPathComponent(name)
             .appendingPathExtension("ipa")
 
-        try Shell.run("/usr/bin/zip", "-r", newIpa.path, payload.path)
-
-        return newIpa
+        return try IPAArchive.pack(app: app, destination: newIpa)
     }
 
     private func getDocumentsDirectory() -> URL {

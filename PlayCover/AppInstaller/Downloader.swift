@@ -174,17 +174,18 @@ class DownloadApp {
 
     private func proceedInstall(_ url: URL?, deleteIPA: Bool = true) {
         if let url = url {
-            Installer.install(ipaUrl: url, export: false, returnCompletion: { _ in
+            Installer.install(ipaUrl: url, export: false, returnCompletion: { installedURL in
                 Task { @MainActor in
                     if deleteIPA {
                         FileManager.default.delete(at: url)
                     }
+                    self.downloadVM.storeAppData = nil
+                    guard installedURL != nil else { return }
                     AppsVM.shared.fetchApps()
                     StoreVM.shared.resolveSources()
                     NotifyService.shared.notify(
                         NSLocalizedString("notification.appInstalled", comment: ""),
                         NSLocalizedString("notification.appInstalled.message", comment: ""))
-                    self.downloadVM.storeAppData = nil
                 }
             })
         }
