@@ -3,7 +3,7 @@ name: macOS 27 validation
 on:
   pull_request:
   push:
-    branches: [develop, 'codex/**']
+    branches: [develop]
   workflow_dispatch:
 
 permissions:
