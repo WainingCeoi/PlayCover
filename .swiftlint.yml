@@ -3,8 +3,9 @@ opt_in_rules:
   
 excluded:
   - Carthage
-  - Pods
   - .build
+  - build
+  - .local-docs
 
 identifier_name:
   allowed_symbols: ['_']

@@ -1,66 +1,69 @@
-name: App Support Request
-description: Request support for a currently unsupported app (for games, use the GAME-SUPPORT template).
-title: "[App Support]: "
-labels: ["app-support"]
+name: App or game compatibility
+description: Report a specific iOS app or game that fails to install or work on macOS 27.
+title: "[Compatibility]: "
+labels: ["bug"]
 body:
-  - type: textarea
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Before reporting
+      options:
+        - label: I am using this fork on macOS 27 and checked for an existing issue.
+          required: true
+  - type: input
     id: app-store
     attributes:
-      label: App Store link
-      description: Provide a link to the app on the iOS App Store.
+      label: App or game name and App Store link
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: App or game version
+    validations:
+      required: true
+  - type: input
+    id: pc-version
+    attributes:
+      label: PlayCover version and build
+      description: Copy the version and build from About PlayCover, or give the source commit for a local build.
+      placeholder: 3.1.1 (857)
+    validations:
+      required: true
+  - type: input
+    id: mac-version
+    attributes:
+      label: macOS 27 version and build
+      description: Run sw_vers in Terminal or copy the details from About This Mac.
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Mac chip and memory
+      placeholder: M2 Pro, 16 GB
     validations:
       required: true
   - type: checkboxes
+    id: symptoms
     attributes:
-      label: Current issues
-      description: Please check all relevant issues
+      label: What fails?
       options:
-        - label: App fails to install
-        - label: App fails to open
-        - label: App crashes randomly during usage
-        - label: App experiences graphical issues or broken UI
-        - label: App fails to connect to servers
-        - label: Other
+        - label: Installation
+        - label: Launch
+        - label: Stability or performance during use
+        - label: Graphics or window behavior
+        - label: Keyboard, mouse, controller, or keymapping
+        - label: Networking or in-app downloads
   - type: textarea
-    id: more-info
+    id: reproduce
     attributes:
-      label: More details
-      description: A clear and concise description of the issues with a particular app.
+      label: Steps to reproduce and expected behavior
+      description: Include exact errors and any non-default app settings or keymaps. Describe what happened and what you expected.
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Crash log
-      description: Copy and paste in any relevant crash logs in plain text.
-      render: shell
-  - type: dropdown
-    id: pc-version
-    attributes:
-      label: What version of PlayCover are you using?
-      options:
-        - "4.0.0"
-        - "3.1.0"
-        - "Nightly/beta (please specify build number)"
-        - "Other (please specify)"
-    validations:
-        required: true
-  - type: dropdown
-    id: mac-version
-    attributes:
-      label: What version of macOS are you using?
-      options:
-        - "Tahoe (macOS 26)"
-        - "Sequoia (macOS 15)"
-        - "Sonoma (macOS 14)"
-        - "macOS beta (please state the specific version)"
-        - "Other (please specify)"
-    validations:
-      required: true
-  - type: checkboxes
-    attributes:
-      label: Issue Language
-      description: All issues must be written in clear plain English so that all devs are able to read them.
-      options:
-        - label: Yes my issue is written in English
-          required: true
+      label: Logs or screenshots
+      description: Attach relevant crash reports, logs, or screenshots. Remove personal information and private source URLs before posting.

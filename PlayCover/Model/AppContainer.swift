@@ -18,14 +18,6 @@ struct AppContainer {
         AppContainer.containersURL.appendingPathComponent(bundleId)
     }
 
-    var userPrefsUrl: URL {
-        containerUrl.appendingPathComponent("Data")
-            .appendingPathComponent("Library")
-            .appendingPathComponent("Preferences")
-            .appendingPathComponent(bundleId)
-            .appendingPathExtension("plist")
-    }
-
     init(bundleId: String) {
         self.bundleId = bundleId
     }

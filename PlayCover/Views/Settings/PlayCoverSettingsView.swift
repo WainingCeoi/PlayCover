@@ -5,7 +5,6 @@
 //  Created by Andrew Glaze on 7/16/22.
 //
 
-import Sparkle
 import SwiftUI
 
 struct PlayCoverSettingsView: View {

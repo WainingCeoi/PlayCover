@@ -145,15 +145,7 @@ struct MainView: View {
             }
             .toastOverlay {
                 HStack {
-                    var spacerWidth: CGFloat {
-                        // space width changes depending on if it is liquid glass and its accompanying custom padding
-                        #if compiler(>=6.2)
-                        if #available(macOS 26.0, *) {
-                            return navWidth + ToastView.toastGlassPadding
-                        }
-                        #endif
-                        return navWidth
-                    }
+                    let spacerWidth = navWidth + ToastView.toastGlassPadding
 
                     if !collapsed {
                         Spacer()

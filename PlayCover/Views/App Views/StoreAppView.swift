@@ -16,7 +16,6 @@ struct StoreAppView: View {
 
     @State var app: SourceAppsData
     @State var isList: Bool
-    @State var observation: NSKeyValueObservation?
     @State var showInfo = false
 
     @State var warningSymbol: String?

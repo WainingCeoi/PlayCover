@@ -37,7 +37,6 @@ extension SourceData: Codable {
 struct IPASourceSettings: View {
     @State var selected = Set<UUID>()
     @State var addSourceSheet = false
-    @State var triggerUpdate = false
     @EnvironmentObject var storeVM: StoreVM
 
     var body: some View {
