@@ -24,7 +24,7 @@ struct KeymapView: View {
                     if let image = viewModel.appIcon {
                         Image(nsImage: image)
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
+                            .scaledToFit()
                     } else {
                         ProgressView()
                             .progressViewStyle(.circular)
@@ -41,7 +41,8 @@ struct KeymapView: View {
                 Spacer()
             }
             .task(priority: .userInitiated) {
-                viewModel.appIcon = viewModel.cache.readImage(forKey: viewModel.app.info.bundleIdentifier)
+                viewModel.appIcon = Cacher.shared.getLocalIcon(bundleId: viewModel.app.info.bundleIdentifier)
+                    ?? NSWorkspace.shared.icon(forFile: viewModel.app.url.path)
             }
 
             List(selection: $viewModel.selectedKeymap) {
