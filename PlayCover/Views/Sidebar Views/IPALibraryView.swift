@@ -19,7 +19,6 @@ struct IPALibraryView: View {
     @State private var selected: SourceAppsData?
 
     @State private var searchString = ""
-    @State private var filteredApps: [SourceAppsData] = []
 
     @State private var isList = UserDefaults.standard.bool(forKey: "IPALibraryView")
     @State private var sortAlphabetical = UserDefaults.standard.bool(forKey: "IPASourceAlphabetically")
@@ -29,9 +28,15 @@ struct IPALibraryView: View {
 
     @State private var gridLayout = [GridItem(.adaptive(minimum: 130, maximum: .infinity))]
 
+    private var displayedApps: [SourceAppsData] {
+        let query = searchString.lowercased()
+        let apps = storeVM.sourcesApps
+        let matchingApps = query.isEmpty ? apps : apps.filter { $0.name.lowercased().contains(query) }
+        return sortAlphabetical ? matchingApps.sorted { $0.name.lowercased() < $1.name.lowercased() } : matchingApps
+    }
+
     var body: some View {
-        let enabledSources: [SourceJSON] = StoreVM.shared.getEnabledSources()
-        let sortedApps = storeVM.sourcesApps.sorted(by: { $0.name.lowercased() < $1.name.lowercased() })
+        let enabledSources: [SourceJSON] = storeVM.getEnabledSources()
         Group {
             if NetworkVM.isConnectedToNetwork() {
                 if enabledSources.isEmpty {
@@ -53,28 +58,26 @@ struct IPALibraryView: View {
                     ScrollView {
                         if !isList {
                             LazyVGrid(columns: gridLayout, alignment: .center) {
-                                ForEach(searchString.isEmpty
-                                        ? sortAlphabetical ? sortedApps : storeVM.sourcesApps
-                                        : filteredApps, id: \.bundleID) { app in
+                                ForEach(displayedApps, id: \.bundleID) { app in
                                     StoreAppView(selectedBackgroundColor: $selectedBackgroundColor,
                                                  selectedTextColor: $selectedTextColor,
                                                  selected: $selected,
                                                  app: app,
                                                  isList: isList)
+                                    .id(app)
                                 }
                             }
                             .padding()
                             Spacer()
                         } else {
                             LazyVStack {
-                                ForEach(searchString.isEmpty
-                                        ? sortAlphabetical ? sortedApps : storeVM.sourcesApps
-                                        : filteredApps, id: \.bundleID) { app in
+                                ForEach(displayedApps, id: \.bundleID) { app in
                                     StoreAppView(selectedBackgroundColor: $selectedBackgroundColor,
                                                  selectedTextColor: $selectedTextColor,
                                                  selected: $selected,
                                                  app: app,
                                                  isList: isList)
+                                    .id(app)
                                     .environmentObject(DownloadVM.shared)
                                     .environmentObject(InstallVM.shared)
                                 }
@@ -165,15 +168,10 @@ struct IPALibraryView: View {
         .onChange(of: sortAlphabetical) { value in
             UserDefaults.standard.set(value, forKey: "IPASourceAlphabetically")
         }
-        .onChange(of: searchString) { value in
-            if sortAlphabetical {
-                filteredApps = sortedApps.filter {
-                    $0.name.lowercased().contains(value.lowercased())
-                }
-            } else {
-                filteredApps = storeVM.sourcesApps.filter {
-                    $0.name.lowercased().contains(value.lowercased())
-                }
+        .onChange(of: storeVM.sourcesApps) { apps in
+            if let selected, !apps.contains(selected) {
+                self.selected = nil
+                showAppInfo = false
             }
         }
         .onChange(of: URLObserved.type) {_ in

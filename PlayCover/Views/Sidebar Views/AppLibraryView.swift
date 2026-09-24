@@ -96,10 +96,9 @@ struct AppLibraryView: View {
         .searchable(text: $searchString, placement: .toolbar)
         .onChange(of: searchString, perform: { value in
             appsVM.searchText = value
-            appsVM.fetchApps()
         })
         .onAppear {
-            appsVM.searchText = ""
+            appsVM.searchText = searchString
             appsVM.fetchApps()
         }
         .onChange(of: isList, perform: { value in
@@ -210,14 +209,18 @@ struct AppDisplayView: View {
                         isList: $isList,
                         viewModel: viewModel)
                 .onAppear {
+                    viewModel.app = app
                     viewModels[app.url.absoluteString] = viewModel
+                }
+                .onChange(of: ObjectIdentifier(app)) { _ in
+                    viewModel.app = app
                 }
         }
     }
 
     var body: some View {
         if isList {
-            VStack {
+            LazyVStack {
                 playAppViews
                 Spacer()
             }

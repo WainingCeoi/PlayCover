@@ -211,8 +211,8 @@ public class AppInfo {
     var primaryIconName: String {
         if let bundleIconDict = self[dictionary: "CFBundleIcons~ipad"] {
             if let primaryBundleIconDict: [String: Any] = bundleIconDict["CFBundlePrimaryIcon"] as? [String: Any] {
-                if let bundleIconFiles = primaryBundleIconDict["CFBundleIconFiles"] as? [String] {
-                    let primaryIconName = bundleIconFiles[bundleIconFiles.count - 1]
+                if let primaryIconName = (primaryBundleIconDict["CFBundleIconFiles"] as? [String])?
+                    .last(where: { !$0.isEmpty }) {
                     return primaryIconName
                 }
             }
@@ -220,15 +220,14 @@ public class AppInfo {
 
         if let bundleIconDict = self[dictionary: "CFBundleIcons"] {
             if let primaryBundleIconDict: [String: Any] = bundleIconDict["CFBundlePrimaryIcon"] as? [String: Any] {
-                if let bundleIconFiles = primaryBundleIconDict["CFBundleIconFiles"] as? [String] {
-                    let primaryIconName = bundleIconFiles[bundleIconFiles.count - 1]
+                if let primaryIconName = (primaryBundleIconDict["CFBundleIconFiles"] as? [String])?
+                    .last(where: { !$0.isEmpty }) {
                     return primaryIconName
                 }
             }
         }
 
-        if let bundleIconFiles = self[strings: "CFBundleIconFiles"] {
-            let primaryIconName = bundleIconFiles[bundleIconFiles.count - 1]
+        if let primaryIconName = self[strings: "CFBundleIconFiles"]?.last(where: { !$0.isEmpty }) {
             return primaryIconName
         }
 

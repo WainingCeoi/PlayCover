@@ -1,0 +1,66 @@
+name: macOS 27 validation
+
+on:
+  pull_request:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos27-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regressions:
+    runs-on: xcode-27
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run macOS 27 regressions
+        run: bash scripts/test-macos27.sh
+
+  build:
+    needs: regressions
+    runs-on: xcode-27
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - name: Verify toolchain
+        run: |
+          xcodebuild -version
+          sdk_version=$(xcrun --sdk macosx --show-sdk-version)
+          test "${sdk_version%%.*}" = 27
+      - name: Install build tools
+        run: |
+          command -v carthage >/dev/null || brew install carthage
+          command -v swiftlint >/dev/null || brew install swiftlint
+      - name: Build PlayTools
+        run: carthage bootstrap --use-xcframeworks --cache-builds
+      - name: Build with ad hoc signing
+        env:
+          FASTLANE: '1'
+        run: |
+          xcodebuild -project PlayCover.xcodeproj -scheme PlayCover -configuration Release \
+            -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
+            -disableAutomaticPackageResolution \
+            CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
+            PLAYCOVER_SIGNING_ENTITLEMENTS=PlayCover/PlayCoverPreview.entitlements \
+            CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
+            PROVISIONING_PROFILE_SPECIFIER= build
+      - name: Package downloadable app
+        run: bash scripts/package-macos27.sh
+      - name: Upload macOS 27 app
+        uses: actions/upload-artifact@v7
+        with:
+          name: PlayCover-macOS27-arm64
+          path: |
+            build/download/PlayCover-*-macOS27-arm64.dmg
+            build/download/SHA256SUMS
+            build/download/BUILD_INFO.txt
+            build/download/Cartfile.resolved
+            build/download/Package.resolved
+          if-no-files-found: error
+          retention-days: 30

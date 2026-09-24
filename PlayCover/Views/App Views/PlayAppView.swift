@@ -119,9 +119,9 @@ struct PlayAppConditionalView: View {
     @Binding var selected: PlayApp?
     @Binding var showStartingProgress: Bool
 
-    @State var app: PlayApp
+    var app: PlayApp
     @State var appIcon: NSImage?
-    @State var isList: Bool
+    var isList: Bool
     @State var hasPlayTools: Bool?
 
     var body: some View {
@@ -132,7 +132,7 @@ struct PlayAppConditionalView: View {
                         if let image = appIcon {
                             Image(nsImage: image)
                                 .resizable()
-                                .aspectRatio(contentMode: .fit)
+                                .scaledToFit()
                         } else {
                             Rectangle()
                                  .fill(.regularMaterial)
@@ -180,7 +180,7 @@ struct PlayAppConditionalView: View {
                         if let image = appIcon {
                             Image(nsImage: image)
                                 .resizable()
-                                .aspectRatio(contentMode: .fit)
+                                .scaledToFit()
                         } else {
                             Rectangle()
                                  .fill(.regularMaterial)
@@ -224,22 +224,28 @@ struct PlayAppConditionalView: View {
                 .frame(width: 130, height: 130)
             }
         }
-        .task(priority: .userInitiated) {
+        .task(id: ObjectIdentifier(app), priority: .userInitiated) {
             let appURL = app.url
             let bundleIdentifier = app.info.bundleIdentifier
             let bundleVersion = app.info.bundleVersion
             let primaryIconName = app.info.primaryIconName
-            let iconData = await Task.detached(priority: .utility) {
+            let iconTask = Task.detached(priority: .utility) {
                 Cacher.shared.resolveLocalIconData(
                     at: appURL,
                     bundleIdentifier: bundleIdentifier,
                     bundleVersion: bundleVersion,
                     primaryIconName: primaryIconName
                 )
-            }.value
-            appIcon = iconData.flatMap(NSImage.init(data:))
+            }
+            let iconData = await withTaskCancellationHandler {
+                await iconTask.value
+            } onCancel: {
+                iconTask.cancel()
+            }
+            guard !Task.isCancelled else { return }
+            appIcon = iconData.flatMap(NSImage.init(data:)) ?? NSWorkspace.shared.icon(forFile: appURL.path)
         }
-        .task(priority: .background) {
+        .task(id: ObjectIdentifier(app), priority: .background) {
             hasPlayTools = app.hasPlayTools()
             showStartingProgress = app.isStarting
         }

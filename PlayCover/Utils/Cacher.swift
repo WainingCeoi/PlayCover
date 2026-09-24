@@ -14,6 +14,7 @@ class Cacher {
     static let shared = Cacher()
     @ImageCache private var imageCache
     let cache = DataCache.instance
+    private let localIconLock = NSLock()
     /// We can create a custom cache like this (default values are as the same as below):
     /// `let cache = DataCache(name: "PlayCoverCache")`
     /// `cache.maxDiskCacheSize = 100*1024*1024`      // 100 MB
@@ -53,30 +54,48 @@ class Cacher {
         bundleVersion: String,
         primaryIconName: String
     ) -> NSImage? {
-        let compareStr = bundleIdentifier + bundleVersion
-        if cache.readString(forKey: compareStr) != nil,
-           let cachedImage = cache.readImage(forKey: bundleIdentifier) {
+        // A version marker plus an unversioned image can return a different version's
+        // icon after a downgrade, or an old icon when extracting an update fails.
+        let cacheKey = localIconCacheKey(at: url, bundleIdentifier: bundleIdentifier,
+                                        bundleVersion: bundleVersion, primaryIconName: primaryIconName)
+        localIconLock.lock()
+        defer { localIconLock.unlock() }
+        guard !Task.isCancelled else { return nil }
+        if let cachedImage = cache.readImage(forKey: cacheKey) {
             return cachedImage
         }
 
-        let lock = NSLock()
-        var candidates: [NSImage] = []
-        url.enumerateContents(blocking: true) { file, _ in
-            guard file.lastPathComponent.contains(primaryIconName), let icon = NSImage(contentsOf: file) else {
-                return
+        let iconName = primaryIconName.isEmpty ? "AppIcon" : primaryIconName
+        var bestImage = bestLooseIcon(at: url, named: iconName)
+        guard !Task.isCancelled else { return nil }
+        if let assetsExtractor = try? AssetsExtractor(appUrl: url) {
+            for icon in assetsExtractor.extractIcons() {
+                if bestImage == nil || icon.size.height > (bestImage?.size.height ?? 0) {
+                    bestImage = icon
+                }
             }
-            lock.lock()
-            candidates.append(icon)
-            lock.unlock()
+        }
+        if let image = bestImage { cache.write(image: image, forKey: cacheKey) }
+        return bestImage
+    }
+
+    private func bestLooseIcon(at url: URL, named iconName: String) -> NSImage? {
+        var bestImage: NSImage?
+        if let files = FileManager.default.enumerator(
+            at: url, includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles, .skipsPackageDescendants]) {
+            for case let file as URL in files {
+                guard !Task.isCancelled else { return nil }
+                guard file.lastPathComponent.contains(iconName),
+                      (try? file.resourceValues(forKeys: [.isRegularFileKey]))?.isRegularFile == true,
+                      let icon = NSImage(contentsOf: file) else { continue }
+                if bestImage == nil || icon.size.height > (bestImage?.size.height ?? 0) {
+                    bestImage = icon
+                }
+            }
         }
 
-        if let assetsExtractor = try? AssetsExtractor(appUrl: url) {
-            candidates.append(contentsOf: assetsExtractor.extractIcons())
-        }
-        let bestResImage = candidates.max { $0.size.height < $1.size.height }
-        cache.write(string: compareStr, forKey: compareStr)
-        if let image = bestResImage { cache.write(image: image, forKey: bundleIdentifier) }
-        return cache.readImage(forKey: bundleIdentifier)
+        return bestImage
     }
 
     func resolveLocalIconData(
@@ -95,10 +114,21 @@ class Cacher {
 
     func getLocalIcon(bundleId: String) -> NSImage? {
         if let app = AppsVM.shared.apps.first(where: { $0.info.bundleIdentifier == bundleId }) {
-            return cache.readImage(forKey: app.info.bundleIdentifier)
+            return cache.readImage(forKey: localIconCacheKey(
+                at: app.url, bundleIdentifier: app.info.bundleIdentifier,
+                bundleVersion: app.info.bundleVersion, primaryIconName: app.info.primaryIconName))
         } else {
             return nil
         }
+    }
+
+    private func localIconCacheKey(at url: URL, bundleIdentifier: String,
+                                   bundleVersion: String, primaryIconName: String) -> String {
+        let infoURL = url.appendingPathComponent("Info.plist")
+        let modified = (try? infoURL.resourceValues(forKeys: [.contentModificationDateKey]))?
+            .contentModificationDate?.timeIntervalSince1970.description ?? ""
+        return ["local-icon-v2", url.absoluteString, bundleIdentifier, bundleVersion, primaryIconName, modified]
+            .joined(separator: "\u{0}")
     }
 
 }

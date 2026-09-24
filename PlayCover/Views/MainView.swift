@@ -18,7 +18,11 @@ struct MainView: View {
 
     @Binding public var isSigningSetupShown: Bool
 
-    @State private var selectedView: Int? = -1
+    private enum Destination: Hashable {
+        case apps, library, source(UUID)
+    }
+
+    @State private var selectedView: Destination? = .apps
     @State private var navWidth: CGFloat = 0
     @State private var viewWidth: CGFloat = 0
     @State private var collapsed: Bool = false
@@ -33,13 +37,13 @@ struct MainView: View {
             NavigationView {
                 GeometryReader { sidebarGeom in
                     List {
-                        NavigationLink(tag: 1, selection: $selectedView) {
+                        NavigationLink(tag: Destination.apps, selection: $selectedView) {
                             AppLibraryView(selectedBackgroundColor: $selectedBackgroundColor,
                                                                        selectedTextColor: $selectedTextColor)
                         } label: {
                             Label("sidebar.appLibrary", systemImage: "square.grid.2x2")
                         }
-                        NavigationLink(tag: 2, selection: $selectedView) {
+                        NavigationLink(tag: Destination.library, selection: $selectedView) {
                             IPALibraryView(storeVM: store,
                                            selectedBackgroundColor: $selectedBackgroundColor,
                                            selectedTextColor: $selectedTextColor)
@@ -59,19 +63,28 @@ struct MainView: View {
                             }
                         }
                         if showSourceFolders {
-                            let enabledSources: [SourceJSON] = StoreVM.shared.getEnabledSources()
-                            ForEach(enabledSources, id: \.hashValue) { source in
-                                    NavigationLink(tag: source.hashValue, selection: $selectedView) {
+                            let enabledSources: [SourceJSON] = store.getEnabledSources()
+                            ForEach(enabledSources, id: \.id) { source in
+                                NavigationLink(tag: Destination.source(source.id), selection: $selectedView) {
                                     IPASourceView(storeVM: store,
                                                   selectedBackgroundColor: $selectedBackgroundColor,
                                                   selectedTextColor: $selectedTextColor,
                                                   sourceName: source.name,
-                                                  sourceApps: source.data)
+                                                  sourceApps: source.data,
+                                                  onRemoveSource: { removeSource(id: source.id) })
                                     .environmentObject(store)
                                 } label: {
                                     Label(source.name, systemImage: "folder")
                                         .font(.caption)
                                         .padding(.leading)
+                                }
+                                .help(store.sourcesList.first(where: { $0.id == source.id })?.source ?? source.name)
+                                .contextMenu {
+                                    Button(role: .destructive) {
+                                        removeSource(id: source.id)
+                                    } label: {
+                                        Label("preferences.button.deleteSource", systemImage: "trash")
+                                    }
                                 }
                             }
                         }
@@ -128,7 +141,7 @@ struct MainView: View {
                 .background(SplitViewAccessor(sideCollapsed: $collapsed))
             }
             .onAppear {
-                self.selectedView = URLObserved.type == .source ? 2 : 1
+                self.selectedView = URLObserved.type == .source ? .library : .apps
             }
             .toastOverlay {
                 HStack {
@@ -155,6 +168,11 @@ struct MainView: View {
                         .animation(.spring(), value: collapsed)
                 }
             }
+            .onChange(of: store.sourcesList.filter(\.isEnabled).map(\.id)) { identifiers in
+                if case .source(let identifier) = selectedView, !identifiers.contains(identifier) {
+                    selectedView = .library
+                }
+            }
             .onChange(of: viewGeom.size) { newSize in
                 viewWidth = newSize.width
             }
@@ -172,13 +190,18 @@ struct MainView: View {
                 SignSetupView(isSigningSetupShown: $isSigningSetupShown)
             }
             .onChange(of: URLObserved.action) { _ in
-                self.selectedView = URLObserved.type == .source ? 2 : self.selectedView
+                self.selectedView = URLObserved.type == .source ? .library : self.selectedView
             }
             .sheet(isPresented: $keyCoverObserved.isKeyCoverUnlockingPromptShown) {
                 KeyCoverUnlockingPrompt()
             }
         }
         .frame(minWidth: 675, minHeight: 330)
+    }
+
+    private func removeSource(id: UUID) {
+        if selectedView == .source(id) { selectedView = .library }
+        store.removeSources(ids: [id])
     }
 
     private func toggleSidebar() {

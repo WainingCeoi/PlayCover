@@ -7,32 +7,54 @@ import Foundation
 
 class Macho {
     static func stripBinary(_ binary: inout Data) throws {
+        guard binary.count >= MemoryLayout<fat_header>.size else {
+            throw PlayCoverError.appCorrupted
+        }
         var header = binary.extract(fat_header.self)
         var offset = MemoryLayout.size(ofValue: header)
-        let shouldSwap = header.magic == FAT_CIGAM
+        let shouldSwap = header.magic == FAT_CIGAM || header.magic == FAT_CIGAM_64
+        let is64Bit = header.magic == FAT_MAGIC_64 || header.magic == FAT_CIGAM_64
 
-        if header.magic == FAT_MAGIC || header.magic == FAT_CIGAM {
+        if header.magic == FAT_MAGIC || header.magic == FAT_CIGAM || is64Bit {
             // Make sure the endianness is correct
             if shouldSwap {
                 swap_fat_header(&header, NXHostByteOrder())
             }
 
+            let archSize = is64Bit ? MemoryLayout<fat_arch_64>.size : MemoryLayout<fat_arch>.size
+            guard Int(header.nfat_arch) <= (binary.count - offset) / archSize else {
+                throw PlayCoverError.appCorrupted
+            }
+            let tableEnd = offset + Int(header.nfat_arch) * archSize
             for _ in 0..<header.nfat_arch {
-                var arch = binary.extract(fat_arch.self, offset: offset)
-                if shouldSwap {
-                    swap_fat_arch(&arch, 1, NXHostByteOrder())
+                let cpuType: cpu_type_t
+                let sliceOffset: UInt64
+                let sliceSize: UInt64
+                if is64Bit {
+                    var arch = binary.extract(fat_arch_64.self, offset: offset)
+                    if shouldSwap { swap_fat_arch_64(&arch, 1, NXHostByteOrder()) }
+                    (cpuType, sliceOffset, sliceSize) = (arch.cputype, arch.offset, arch.size)
+                } else {
+                    var arch = binary.extract(fat_arch.self, offset: offset)
+                    if shouldSwap { swap_fat_arch(&arch, 1, NXHostByteOrder()) }
+                    (cpuType, sliceOffset, sliceSize) = (arch.cputype, UInt64(arch.offset), UInt64(arch.size))
                 }
 
-                if arch.cputype == CPU_TYPE_ARM64 {
+                if cpuType == CPU_TYPE_ARM64 {
+                    guard sliceOffset >= UInt64(tableEnd), sliceOffset <= UInt64(binary.count),
+                          sliceSize >= UInt64(MemoryLayout<mach_header_64>.size),
+                          sliceSize <= UInt64(binary.count) - sliceOffset else {
+                        throw PlayCoverError.appCorrupted
+                    }
                     print("Found ARM64 arch in fat binary")
 
                     binary = binary
-                        .subdata(in: Int(arch.offset)..<Int(arch.offset+arch.size))
+                        .subdata(in: Int(sliceOffset)..<Int(sliceOffset + sliceSize))
 
                     return
                 }
 
-                offset += Int(MemoryLayout.size(ofValue: arch))
+                offset += archSize
             }
 
             throw PlayCoverError.failedToStripBinary
@@ -52,8 +74,11 @@ class Macho {
         try replaceLibraries(&binary)
 
         print("Writing revised MachO...")
-        try FileManager.default.removeItem(at: macho)
-        try binary.write(to: macho)
+        let attributes = try FileManager.default.attributesOfItem(atPath: macho.path)
+        try binary.write(to: macho, options: .atomic)
+        if let permissions = attributes[.posixPermissions] {
+            try FileManager.default.setAttributes([.posixPermissions: permissions], ofItemAtPath: macho.path)
+        }
     }
 
     static func replaceLibraries(_ binary: inout Data) throws {
@@ -154,17 +179,22 @@ class Macho {
             return Data(bytes: &macCatalystCommand, count: MemoryLayout<build_version_command>.size)
         }, atEnd: true)
     }
+}
 
+extension Macho {
     static func replaceLastCommand(_ binary: inout Data,
                                    satisfy isTargetCommand: (Data, Bool) -> Bool,
                                    with getNewCommandData: (Bool) -> Data?,
                                    atEnd shouldAppend: Bool) throws {
         let headerSize = MemoryLayout<mach_header_64>.size
+        guard binary.count >= headerSize else { throw PlayCoverError.appCorrupted }
         var header = binary.extract(mach_header_64.self)
-        var shouldSwap = false
+        let shouldSwap = header.magic == MH_CIGAM_64
+        if shouldSwap { swap_mach_header_64(&header, NXHostByteOrder()) }
 
         var oldCommandStart = headerSize
         var oldCommandSize: UInt32 = 0
+        var firstFileContent = binary.count
 
         let movedCommandsEnd = try iterateLoadCommands(binary: binary) { offset, needSwap in
             let loadCommand = binary.extract(load_command.self,
@@ -173,12 +203,10 @@ class Macho {
             if isTargetCommand(binary[offset ..< offset+Int(loadCommand.cmdsize)], needSwap) {
                 oldCommandStart = offset
                 oldCommandSize = loadCommand.cmdsize
-                shouldSwap = needSwap
             }
+            firstFileContent = min(firstFileContent,
+                                   fileContentOffset(binary, at: offset, command: loadCommand, shouldSwap: needSwap))
             return false
-        }
-        if movedCommandsEnd != headerSize + Int(header.sizeofcmds) {
-            print("Error while replacing load command: end of commands mismatch")
         }
 
         let oldCommandEnd = oldCommandStart + Int(oldCommandSize)
@@ -197,8 +225,10 @@ class Macho {
 
         let injectionEnd = movedCommandsEnd - Int(oldCommandSize) + Int(newCommandSize)
         if injectionEnd > movedCommandsEnd {
-            if let nonZero = binary[movedCommandsEnd ..< injectionEnd].first(where: {$0 != 0}) {
-                print("Non zero value \(nonZero) found after load commands. Injection may overlap data section")
+            guard injectionEnd <= firstFileContent,
+                  binary[movedCommandsEnd..<injectionEnd].allSatisfy({ $0 == 0 }) else {
+                // Refuse to overwrite sections, including payload bytes that happen to be zero.
+                throw PlayCoverError.appCorrupted
             }
         } else {
             binary.replaceSubrange(injectionEnd ..< movedCommandsEnd,
@@ -209,13 +239,19 @@ class Macho {
         // Write new header data
         header.sizeofcmds -= oldCommandSize
         header.sizeofcmds += newCommandSize
+        if oldCommandSize == 0 { header.ncmds += 1 }
+        if shouldSwap { swap_mach_header_64(&header, NX_BigEndian) }
         let newHeaderData = Data(bytes: &header, count: headerSize)
         binary.replaceSubrange(0..<headerSize, with: newHeaderData)
     }
 
     static func iterateLoadCommands(binary: Data, _ evaluate: (Int, Bool) -> Bool) throws -> Int {
         let headerSize = MemoryLayout<mach_header_64>.size
+        guard binary.count >= headerSize else { throw PlayCoverError.appCorrupted }
         var header = binary.extract(mach_header_64.self)
+        guard header.magic == MH_MAGIC_64 || header.magic == MH_CIGAM_64 else {
+            throw PlayCoverError.appCorrupted
+        }
         var offset = headerSize
         let shouldSwap = header.magic == MH_CIGAM_64
         if  shouldSwap {
@@ -224,25 +260,31 @@ class Macho {
         }
 
         let allCommandsEnd = headerSize + Int(header.sizeofcmds)
-        if allCommandsEnd >= binary.count || allCommandsEnd <= headerSize {
+        if allCommandsEnd > binary.count || allCommandsEnd <= headerSize {
             print("Cannot iterate load commands: Mach-O file is corrupted(-1)")
             throw PlayCoverError.appCorrupted
         }
         for index in 0..<header.ncmds {
+            guard offset <= allCommandsEnd - MemoryLayout<load_command>.size else {
+                throw PlayCoverError.appCorrupted
+            }
             let loadCommand = binary.extract(load_command.self,
                                              offset: offset,
                                              swap: shouldSwap ? swap_load_command:nil)
             let commandEnd = offset + Int(loadCommand.cmdsize)
-            if commandEnd > allCommandsEnd || commandEnd <= offset {
+            if commandEnd > allCommandsEnd || loadCommand.cmdsize < MemoryLayout<load_command>.size
+                || loadCommand.cmdsize % 8 != 0 {
                 print("Cannot iterate load commands: Mach-O file is corrupted(\(index))")
                 throw PlayCoverError.appCorrupted
             }
+            try validateCommand(binary, at: offset, command: loadCommand, shouldSwap: shouldSwap)
             let terminated = evaluate(offset, shouldSwap)
             offset = commandEnd
             if terminated {
-                break
+                return offset
             }
         }
+        guard offset == allCommandsEnd else { throw PlayCoverError.appCorrupted }
         return offset
     }
 
@@ -284,5 +326,74 @@ class Macho {
             return false
         }
         return result
+    }
+}
+
+private extension Macho {
+    static func fileContentOffset(_ binary: Data, at offset: Int,
+                                  command: load_command, shouldSwap: Bool) -> Int {
+        guard command.cmd == UInt32(LC_SEGMENT_64) else { return binary.count }
+        let segment = binary.extract(segment_command_64.self, offset: offset,
+                                     swap: shouldSwap ? swap_segment_command_64:nil)
+        var firstFileContent = binary.count
+        if segment.fileoff > 0 {
+            firstFileContent = Int(min(UInt64(firstFileContent), segment.fileoff))
+        }
+        for index in 0..<Int(segment.nsects) {
+            let sectionOffset = offset + MemoryLayout<segment_command_64>.size
+                + index * MemoryLayout<section_64>.size
+            var section = binary.extract(section_64.self, offset: sectionOffset)
+            if shouldSwap { swap_section_64(&section, 1, NXHostByteOrder()) }
+            if section.offset > 0 {
+                firstFileContent = min(firstFileContent, Int(section.offset))
+            }
+        }
+        return firstFileContent
+    }
+
+    static func validateCommand(_ binary: Data, at offset: Int,
+                                command: load_command, shouldSwap: Bool) throws {
+        let size = Int(command.cmdsize)
+        switch command.cmd {
+        case UInt32(LC_SEGMENT_64):
+            try validateSegment(binary, at: offset, size: size, shouldSwap: shouldSwap)
+        case UInt32(LC_LOAD_DYLIB), LC_LOAD_WEAK_DYLIB:
+            try validateDylib(binary, at: offset, size: size, shouldSwap: shouldSwap)
+        case UInt32(LC_ENCRYPTION_INFO_64):
+            guard size >= MemoryLayout<encryption_info_command_64>.size else { throw PlayCoverError.appCorrupted }
+        case UInt32(LC_BUILD_VERSION):
+            try validateBuildVersion(binary, at: offset, size: size, shouldSwap: shouldSwap)
+        case UInt32(LC_VERSION_MIN_IPHONEOS), UInt32(LC_VERSION_MIN_MACOSX):
+            guard size >= MemoryLayout<version_min_command>.size else { throw PlayCoverError.appCorrupted }
+        default:
+            break
+        }
+    }
+
+    static func validateSegment(_ binary: Data, at offset: Int, size: Int, shouldSwap: Bool) throws {
+        guard size >= MemoryLayout<segment_command_64>.size else { throw PlayCoverError.appCorrupted }
+        let segment = binary.extract(segment_command_64.self, offset: offset,
+                                     swap: shouldSwap ? swap_segment_command_64:nil)
+        guard Int(segment.nsects) <= (size - MemoryLayout<segment_command_64>.size)
+            / MemoryLayout<section_64>.size else { throw PlayCoverError.appCorrupted }
+    }
+
+    static func validateDylib(_ binary: Data, at offset: Int, size: Int, shouldSwap: Bool) throws {
+        guard size >= MemoryLayout<dylib_command>.size else { throw PlayCoverError.appCorrupted }
+        let dylib = binary.extract(dylib_command.self, offset: offset,
+                                   swap: shouldSwap ? swap_dylib_command:nil)
+        let nameOffset = Int(dylib.dylib.name.offset)
+        guard nameOffset >= MemoryLayout<dylib_command>.size, nameOffset < size,
+              binary[(offset + nameOffset)..<(offset + size)].contains(0) else {
+            throw PlayCoverError.appCorrupted
+        }
+    }
+
+    static func validateBuildVersion(_ binary: Data, at offset: Int, size: Int, shouldSwap: Bool) throws {
+        guard size >= MemoryLayout<build_version_command>.size else { throw PlayCoverError.appCorrupted }
+        let version = binary.extract(build_version_command.self, offset: offset,
+                                     swap: shouldSwap ? swap_build_version_command:nil)
+        guard Int(version.ntools) <= (size - MemoryLayout<build_version_command>.size)
+            / MemoryLayout<build_tool_version>.size else { throw PlayCoverError.appCorrupted }
     }
 }

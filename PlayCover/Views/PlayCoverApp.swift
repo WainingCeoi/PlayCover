@@ -71,6 +71,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 @main
+enum PlayCoverMain {
+    @MainActor
+    static func main() {
+        if CommandLine.arguments.dropFirst().contains("--validate-startup") {
+            // dyld loads linked frameworks before this point; skip all app initialization.
+            print("PlayCover startup validation passed")
+            return
+        }
+        PlayCoverApp.main()
+    }
+}
+
 struct PlayCoverApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject var updaterViewModel = UpdaterViewModel()
