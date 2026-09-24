@@ -211,22 +211,7 @@ class AppSettings {
 
 extension NSScreen {
     public static func hasNotch() -> Bool {
-        guard #available(macOS 12, *) else { return false }
         // check if any of the connected screens contains a notch
         return NSScreen.screens.contains { $0.safeAreaInsets.top != 0 }
-    }
-
-    private static func getMacModel() -> String? {
-        let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPlatformExpertDevice"))
-        var modelIdentifier: String?
-
-        if let modelData = IORegistryEntryCreateCFProperty(service, "model" as CFString, kCFAllocatorDefault, 0)
-            .takeRetainedValue() as? Data {
-            if let modelIdentifierCString = String(data: modelData, encoding: .utf8)?.cString(using: .utf8) {
-                modelIdentifier = String(cString: modelIdentifierCString)
-            }
-        }
-        IOObjectRelease(service)
-        return modelIdentifier
     }
 }

@@ -359,26 +359,24 @@ struct GraphicsView: View {
                     }
                 }
                 VStack(alignment: .leading) {
-                    if #available(macOS 13.2, *) {
-                        HStack {
-                            Toggle("settings.picker.windowFix", isOn: $settings.settings.inverseScreenValues)
-                                .help("settings.picker.windowFix.help")
-                                .onChange(of: settings.settings.inverseScreenValues) { _ in
-                                    settings.settings.windowFixMethod = 0
-                                }
-                            Spacer()
-                            // Dropdown to choose fix method
-                            Picker("", selection: $settings.settings.windowFixMethod) {
-                                Text("settings.picker.windowFixMethod.0").tag(0)
-                                Text("settings.picker.windowFixMethod.1").tag(1)
+                    HStack {
+                        Toggle("settings.picker.windowFix", isOn: $settings.settings.inverseScreenValues)
+                            .help("settings.picker.windowFix.help")
+                            .onChange(of: settings.settings.inverseScreenValues) { _ in
+                                settings.settings.windowFixMethod = 0
                             }
-                            .frame(alignment: .leading)
-                            .help("settings.picker.windowFixMethod.help")
-                            .disabled(!settings.settings.inverseScreenValues)
-                            .disabled(settings.settings.resolution != 0)
-                        }
                         Spacer()
+                        // Dropdown to choose fix method
+                        Picker("", selection: $settings.settings.windowFixMethod) {
+                            Text("settings.picker.windowFixMethod.0").tag(0)
+                            Text("settings.picker.windowFixMethod.1").tag(1)
+                        }
+                        .frame(alignment: .leading)
+                        .help("settings.picker.windowFixMethod.help")
+                        .disabled(!settings.settings.inverseScreenValues)
+                        .disabled(settings.settings.resolution != 0)
                     }
+                    Spacer()
                     HStack {
                         Text("settings.settings.displayRotation")
                         Spacer()
@@ -719,8 +717,6 @@ struct MiscView: View {
                 HStack {
                     HStack {
                         Toggle("settings.toggle.hud", isOn: $settings.settings.metalHUD)
-                            .disabled(!isVenturaGreater())
-                            .help(!isVenturaGreater() ? "settings.unavailable.hud" : "")
                         Spacer()
                         HStack {
                             Text("settings.text.debugger")
@@ -802,14 +798,6 @@ struct MiscView: View {
                 }
             }
             .padding()
-        }
-    }
-
-    func isVenturaGreater() -> Bool {
-        if #available(macOS 13.0, *) {
-            return true
-        } else {
-            return false
         }
     }
 

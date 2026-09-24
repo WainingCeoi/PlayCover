@@ -1,8 +1,6 @@
-// Should match https://github.com/PlayCover/PlayTools/blob/master/PlayTools/Keymap/KeyCodeNames.swift exactly
+// Key names must match https://github.com/PlayCover/PlayTools/blob/master/PlayTools/Keymap/KeyCodeNames.swift
 
 class KeyCodeNames {
-    public static let defaultCode = -10
-
     public static let keyCodes = [
         -4: "cA",
         -5: "cX",

@@ -49,17 +49,6 @@ public class AppInfo {
         }
     }
 
-    private init(url: URL, rawStorage: NSMutableDictionary) {
-        self.url = url
-        self.rawStorage = rawStorage
-    }
-
-    public func retargeted(toURL url: URL) -> AppInfo {
-        guard let copy = rawStorage.mutableCopy() as? NSMutableDictionary
-        else { fatalError("Failed to copy rawStorage") }
-        return AppInfo(url: url, rawStorage: copy)
-    }
-
     /// Write an XML-serialized representation of this info to the given URL
     func write(toURL url: URL) throws {
         try rawStorage.write(to: url)

@@ -1,33 +1,24 @@
-name: Feature Request
-description: Request a new feature.
+name: Feature request
+description: Suggest an improvement for the macOS 27 fork.
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
   - type: textarea
     id: related-to-problem
     attributes:
-      label: Is your feature request related to a problem?
-      description: A clear and concise description of what the problem is.
+      label: What problem would this solve?
+      description: Describe the task or experience you want to improve on macOS 27.
     validations:
       required: true
   - type: textarea
     id: solution
     attributes:
-      label: Describe the solution you'd like
-      description: A clear and concise description of what you're suggesting.
+      label: Proposed solution
+      description: Describe the behavior you would like and any alternatives you considered.
     validations:
       required: true
   - type: textarea
     id: extra-info
     attributes:
-      label: Anything else?
-      description: Upload any relevant images, links, screenshots that might help realise your suggestion.
-    validations:
-      required: true
-  - type: checkboxes
-    attributes:
-      label: Issue Language
-      description: All issues must be written in clear plain English so that all devs are able to read them.
-      options:
-        - label: Yes my issue is written in English
-          required: true
+      label: Additional context
+      description: Add relevant screenshots, examples, or links.
