@@ -1,82 +1,38 @@
-<div id="top"></div>
+# PlayCover for macOS 27
 
-‎<h1 align="center">[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![GPLv3 License][license-shield]][license-url]
-[![Weblate](https://img.shields.io/weblate/progress/playcover?style=for-the-badge)](https://hosted.weblate.org/projects/playcover/playcover/)
-</h1>
+Run iOS apps and games on Apple Silicon Macs with keyboard, mouse, and controller support. This community fork of [PlayCover](https://github.com/PlayCover/PlayCover) focuses on macOS 27 compatibility, performance, and reliability. App compatibility varies; report problems in [this fork's issue tracker](https://github.com/WainingCeoi/PlayCover/issues).
 
+## Download and install
 
+Download the latest `PlayCover-<version>-macOS27-arm64.dmg` from [GitHub Releases](https://github.com/WainingCeoi/PlayCover/releases/latest). **Xcode and GitHub sign-in are not needed to install a release.** Requires macOS 27 and an Apple Silicon Mac.
 
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/PlayCover/PlayCover">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
+1. Quit PlayCover.
+2. Open the DMG and drag PlayCover to **Applications**.
+3. Choose **Replace** when updating an existing installation, then open PlayCover.
 
-  <h3 align="center">PlayCover</h3>
+Replacing the app bundle leaves installed games and settings intact. Releases include `SHA256SUMS`, version/build metadata in `BUILD_INFO.txt`, and dependency lockfiles. **Check for Updates** opens this fork's Releases page; updates are installed manually. See the [changelog](CHANGELOG.md) for release changes.
 
-  <p align="center">
-    Run iOS apps and games on Apple Silicon Macs with mouse, keyboard and controller support.
-    <br />
-    <br />
-    <a href="https://playcover.github.io/PlayBook">Documentation</a>
-    ·
-    <a href="https://discord.gg/RNCHsQHr3S">Discord</a>
-    ·
-    <a href="https://playcover.io/">Website</a>
-  </p>
-</div>
+This fork is ad hoc signed and is not notarized. If macOS blocks a build you trust, try opening it once, then use **System Settings → Privacy & Security → Open Anyway**. See [Apple's instructions](https://support.apple.com/102445).
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+Development builds are available under **Actions → macOS 27 validation → a successful run → Artifacts**. Downloading these artifacts requires GitHub sign-in.
 
-Welcome to PlayCover! This software is all about allowing you to run iOS apps and games on Apple Silicon devices. This fork targets macOS 27; older macOS versions are outside its support scope.
+## Manage remote IPA sources
 
-PlayCover works by putting applications through a wrapper which imitates an iPad. This allows the apps to run natively and perform very well.
+Add and manage catalogs in **PlayCover → Settings → IPA Sources**. To remove a source:
 
-PlayCover also allows you to map custom touch controls to keyboard, which is not possible in alternative sideloading methods such as Sideloadly. 
+- Right-click its folder under **IPA Library** and choose **Delete Source**.
+- Open the source and click the toolbar trash button.
+- In **Settings → IPA Sources**, select one or more rows and click **Delete Source** or press Delete.
 
-These controls include all the essentials, from WASD, camera movement, left and right clicks, and individual keymapping, similar to a popular Android emulator’s keymapping system called Bluestacks.
+Removing a source removes its catalog; it does not uninstall its apps. Hover over similarly named sidebar entries to see their source URLs.
 
-This software was originally designed to run Genshin Impact on your Apple Silicon device, but it can now run a wide range of applications. Unfortunately, not all games are supported, and some may have bugs.
+## Build from source
 
-Localisations handled in [Weblate](https://hosted.weblate.org/projects/playcover/).
-
-![Fancy logo](./images/dark.png#gh-dark-mode-only)
-![Fancy logo](./images/light.png#gh-light-mode-only)
-
-<p align="right"><a href="#top">⬆️ Back to top️</a></p>
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-Follow the instructions below to get Genshin Impact, and many other games, up and running in no time.
-
-### Prerequisites
-
-At the moment, PlayCover can only run on Apple Silicon Macs. This means that only devices with M-series SoCs (eg. M1) are supported.
-
-If you have an Intel Mac, you can explore alternatives like Bootcamp or emulators.
-
-### Downloading this macOS 27 fork
-
-Download **PlayCover 3.1.1 (build 857)** from [this fork's GitHub Releases](https://github.com/WainingCeoi/PlayCover/releases/latest). Choose `PlayCover-3.1.1-macOS27-arm64.dmg` under Assets. No Xcode or GitHub sign-in is needed to install the release. Open the DMG, quit PlayCover, and drag the app to **Applications**. Keep a copy of the previous app if you want to revert. This replaces the app bundle without uninstalling your games.
-
-This community fork is ad hoc signed and is not notarized. If macOS blocks opening a build you trust, try opening it once, then use **System Settings → Privacy & Security → Open Anyway**. Releases include `SHA256SUMS`, version/build metadata in `BUILD_INFO.txt`, and dependency lockfiles. **Check for Updates** opens this fork's Releases page; updates are installed manually.
-
-Development builds remain available under **Actions → macOS 27 validation → a successful run → Artifacts** (GitHub sign-in required). See the [changelog](CHANGELOG.md) for release changes.
-
-### Building this macOS 27 fork locally
-
-Install Xcode 27, select it with `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`, and install Carthage and SwiftLint (`brew install carthage swiftlint`). From the repository directory:
+Install Xcode 27 and select it with `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`. Install build tools with `brew install carthage swiftlint`, then run from the repository directory:
 
 ```sh
 carthage bootstrap --use-xcframeworks --cache-builds
-FASTLANE=1 xcodebuild -project PlayCover.xcodeproj -scheme PlayCover -configuration Release \
+PLAYCOVER_SKIP_BUILD_SETUP=1 xcodebuild -project PlayCover.xcodeproj -scheme PlayCover -configuration Release \
   -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
   -disableAutomaticPackageResolution \
   CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
@@ -86,77 +42,24 @@ FASTLANE=1 xcodebuild -project PlayCover.xcodeproj -scheme PlayCover -configurat
 bash scripts/package-macos27.sh
 ```
 
-The installable disk image is `build/download/PlayCover-3.1.1-macOS27-arm64.dmg`. Dependency revisions are recorded in `Cartfile.resolved` and the Xcode workspace's `Package.resolved`. Packaging verifies the signatures and launches the executable in an isolated startup-check mode before creating the DMG. Ad hoc builds use a dedicated preview entitlement so macOS can load embedded frameworks without an Apple Developer Team ID. Normal Developer ID release entitlements are unchanged. Focused regression checks also run with the macOS 27 Command Line Tools: `bash scripts/test-macos27.sh`. See [test instructions](Tests/README.md) for coverage.
+The disk image is written to `build/download/PlayCover-<version>-macOS27-arm64.dmg`. Packaging verifies signatures and launches the executable in an isolated startup check before creating the DMG. Ad hoc builds use preview entitlements that allow embedded frameworks to load without an Apple Developer Team ID.
 
-### Removing a remote IPA source
-
-Right-click the source folder under **IPA Library** and choose **Delete Source**, or open that source and click the trash button in its toolbar. You can also use **PlayCover → Settings → IPA Sources**: select one or more rows, then click **Delete Source** or press Delete. Removing a source removes its catalog from PlayCover; it does not uninstall apps already installed from it. Hover over similarly named sidebar entries to see their source URLs.
-
-### Download
-
-Download this fork's releases [here](https://github.com/WainingCeoi/PlayCover/releases). [Upstream PlayCover releases](https://github.com/PlayCover/PlayCover/releases) are maintained separately and do not include this fork's macOS 27 changes.
-
-### Documentation
-
-To learn how to setup and use PlayCover, visit the documentation [here](https://playcover.github.io/PlayBook).
-
-### Upstream Homebrew Cask
-The upstream project hosts a [Homebrew](https://brew.sh) tap with its [PlayCover cask](https://github.com/PlayCover/homebrew-playcover/blob/master/Casks/playcover-community.rb). It installs upstream PlayCover, not this macOS 27 fork. To install upstream from it run:
+Dependency revisions are recorded in `Cartfile.resolved` and `PlayCover.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`. Regression checks also run with the macOS 27 Command Line Tools:
 
 ```sh
-brew install --cask PlayCover/playcover/playcover-community
+bash scripts/test-macos27.sh
 ```
 
-To uninstall:
-1. Remove PlayCover using `brew uninstall --cask playcover-community`;
-2. Untap `PlayCover/playcover` with `brew untap PlayCover/playcover`.
+See [test instructions](Tests/README.md) for coverage and individual suites.
 
-<p align="right"><a href="#top">⬆️ Back to top️</a></p>
+## Troubleshooting and contributing
 
+For crashes, failed installs, launch errors, or slow operations, [open an issue](https://github.com/WainingCeoi/PlayCover/issues/new/choose) with the PlayCover version/build, macOS 27 version/build, Mac chip, reproduction steps, and any relevant crash log. For app-specific problems, include the app version and App Store link. Remove personal information from logs before posting.
 
+The [upstream user guide](https://playcover.github.io/PlayBook) covers general PlayCover usage. Its downloads and support instructions refer to upstream releases; use this fork's Releases page and issue tracker for this build.
 
-<!-- LICENSE -->
-## License
+## License and attribution
 
-Distributed under the GPLv3 License. See `LICENSE` for more information.
+Distributed under [GPLv3](LICENSE). This fork builds on the work of the [upstream PlayCover contributors](https://github.com/PlayCover/PlayCover/graphs/contributors), originally created by [iVoider](https://github.com/iVoider). Contributor expectations are described in the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-
-
-<!-- CONTACT -->
-## Contact
-
-Lucas Lee - playcover@lucas.icu
-
-Depal - depal@playcover.io
-
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Libraries Used
-
-These open source libraries were used to create this project.
-
-* [inject](https://github.com/paradiseduo/inject)
-* [PTFakeTouch](https://github.com/Ret70/PTFakeTouch)
-* [DownloadManager](https://github.com/shapedbyiris/download-manager)
-* [DataCache](https://github.com/huynguyencong/DataCache)
-* [SwiftUI CachedAsyncImage](https://github.com/bullinnyc/CachedAsyncImage)
-
-* Thanks to @iVoider for creating such a great project!
-
-<p align="right"><a href="#top">⬆️ Back to top️</a></p>
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/PlayCover/PlayCover.svg?style=for-the-badge
-[contributors-url]: https://github.com/PlayCover/PlayCover/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/PlayCover/PlayCover.svg?style=for-the-badge
-[forks-url]: https://github.com/PlayCover/PlayCover/network/members
-[stars-shield]: https://img.shields.io/github/stars/PlayCover/PlayCover.svg?style=for-the-badge
-[stars-url]: https://github.com/PlayCover/PlayCover/stargazers
-[issues-shield]: https://img.shields.io/github/issues/PlayCover/PlayCover.svg?style=for-the-badge
-[issues-url]: https://github.com/PlayCover/PlayCover/issues
-[license-shield]: https://img.shields.io/github/license/PlayCover/PlayCover.svg?style=for-the-badge
-[license-url]: https://github.com/PlayCover/PlayCover/blob/master/LICENSE
+PlayCover uses [PlayTools](https://github.com/PlayCover/PlayTools) and the open source dependencies listed in its [Carthage lockfile](Cartfile.resolved) and [Swift package lockfile](PlayCover.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved). Dependency licenses remain with their respective projects.

@@ -11,7 +11,6 @@ import SwiftSoup
 class RedirectHandler: NSObject, URLSessionTaskDelegate {
     private var finalURL: URL
     private let dispatchGroup = DispatchGroup() // DispatchGroup
-    private var completion: (() -> Void)? // completion handler
     lazy var session: URLSession = {
         let configuration = URLSessionConfiguration.default
         return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
@@ -35,23 +34,6 @@ class RedirectHandler: NSObject, URLSessionTaskDelegate {
     }
     private func setFinal(url: URL) {
         self.finalURL = url
-    }
-    private func fetchGoogleDrivePageContent(url: String, completion: @escaping (String?) -> Void) {
-        guard let url = URL(string: url) else {
-            completion(nil)
-            return
-        }
-        dispatchGroup.enter() // Enter Group
-        let task = session.dataTask(with: url) { data, _, error in
-            defer { self.dispatchGroup.leave() } // Leave group
-            guard let data = data, error == nil else {
-                completion(nil)
-                return
-            }
-            let htmlContent = String(data: data, encoding: .utf8)
-            completion(htmlContent)
-        }
-        task.resume()
     }
     private func extractDownloadLink(from htmlContent: String) {
         do {
@@ -83,15 +65,6 @@ class RedirectHandler: NSObject, URLSessionTaskDelegate {
         let fileId = originalLink[startIndex..<endIndex]
         let newLink = "https://drive.usercontent.google.com/download?id=\(fileId)&export=download&authuser=0"
         return URL(string: newLink)
-    }
-    private func getDirectDownloadLink(for googleDriveLink: String, completion: @escaping () -> Void) {
-        self.completion = completion
-        fetchGoogleDrivePageContent(url: googleDriveLink) { htmlContent in
-            guard htmlContent != nil else {
-                        return
-                    }
-                    completion()
-                }
     }
     private func redirectCatch(from url: URL) {
         dispatchGroup.enter() // Enter group

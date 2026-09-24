@@ -14,8 +14,7 @@
 		34775E752D493B59001586C2 /* CachedAsyncImageWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34775E742D493B54001586C2 /* CachedAsyncImageWrapper.swift */; };
 		349915332F8866A3005565D1 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 349915322F8866A3005565D1 /* AppIcon.icon */; };
 		349915352F8866A8005565D1 /* AppIcon.dev.icon in Resources */ = {isa = PBXBuildFile; fileRef = 349915342F8866A8005565D1 /* AppIcon.dev.icon */; };
-		365AFB0628847B2E008B3542 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 365AFB0528847B2E008B3542 /* Sparkle */; };
-		365AFB0828847B75008B3542 /* Sparkle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 365AFB0728847B75008B3542 /* Sparkle.swift */; };
+		365AFB0828847B75008B3542 /* UpdaterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 365AFB0728847B75008B3542 /* UpdaterViewModel.swift */; };
 		3665EF8928832400007CF915 /* PlayCoverSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3665EF8828832400007CF915 /* PlayCoverSettingsView.swift */; };
 		36B26B97288C724600859EFD /* UpdateSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B26B96288C724600859EFD /* UpdateSettings.swift */; };
 		5314D1EE26C402EC00A0A727 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5314D1ED26C402EC00A0A727 /* Shell.swift */; };
@@ -37,7 +36,6 @@
 		6E5C68BA289865C8008EC11B /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5C68B9289865C8008EC11B /* MainView.swift */; };
 		6E66B0BF289DE6240099B907 /* StoreVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66B0BE289DE6240099B907 /* StoreVM.swift */; };
 		6E66B0C9289F52800099B907 /* IPALibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66B0C8289F52800099B907 /* IPALibraryView.swift */; };
-		6E66B0D1289F57B00099B907 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 6E66B0D0289F57B00099B907 /* Documentation.docc */; };
 		6E66B0D3289F5A010099B907 /* StoreAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66B0D2289F5A010099B907 /* StoreAppView.swift */; };
 		6E66B0D528A0039D0099B907 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66B0D428A0039D0099B907 /* ToastView.swift */; };
 		6E66B0D928A135360099B907 /* ToastVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66B0D828A135360099B907 /* ToastVM.swift */; };
@@ -51,7 +49,6 @@
 		6EF893D528F34CD1004AB6D9 /* NetworkVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EF893D428F34CD1004AB6D9 /* NetworkVM.swift */; };
 		8783CFFB26B8C52D00171041 /* PlayCoverApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8783CFFA26B8C52D00171041 /* PlayCoverApp.swift */; };
 		8783CFFF26B8C52E00171041 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8783CFFE26B8C52E00171041 /* Assets.xcassets */; };
-		8783D00226B8C52E00171041 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8783D00126B8C52E00171041 /* Preview Assets.xcassets */; };
 		8783D00B26B8C9E600171041 /* URLExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8783D00A26B8C9E600171041 /* URLExtensions.swift */; };
 		923421F7275F40300030CD7D /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923421F6275F40300030CD7D /* AppContainer.swift */; };
 		9272F19E273B74C800DFBEF1 /* AppsVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9272F19C273B74C800DFBEF1 /* AppsVM.swift */; };
@@ -107,7 +104,7 @@
 		34775E742D493B54001586C2 /* CachedAsyncImageWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImageWrapper.swift; sourceTree = "<group>"; };
 		349915322F8866A3005565D1 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		349915342F8866A8005565D1 /* AppIcon.dev.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.dev.icon; sourceTree = "<group>"; };
-		365AFB0728847B75008B3542 /* Sparkle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sparkle.swift; sourceTree = "<group>"; };
+		365AFB0728847B75008B3542 /* UpdaterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterViewModel.swift; sourceTree = "<group>"; };
 		3665EF8828832400007CF915 /* PlayCoverSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayCoverSettingsView.swift; sourceTree = "<group>"; usesTabs = 0; };
 		36B26B96288C724600859EFD /* UpdateSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSettings.swift; sourceTree = "<group>"; };
 		5314D1ED26C402EC00A0A727 /* Shell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shell.swift; sourceTree = "<group>"; };
@@ -117,10 +114,6 @@
 		532644E326E80DD0002EA34D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		532644E426E80E1A002EA34D /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		532644E526E80E6B002EA34D /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/Localizable.strings; sourceTree = "<group>"; };
-		53468A3E271236A800887A08 /* BaseBoard.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = BaseBoard.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/BaseBoard.framework/Versions/A/BaseBoard.tbd; sourceTree = DEVELOPER_DIR; };
-		53468A452712632800887A08 /* Security.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = Security.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Security.framework/Versions/A/Security.tbd; sourceTree = DEVELOPER_DIR; };
-		53468A4A2712917900887A08 /* libmis.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libmis.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libmis.tbd; sourceTree = DEVELOPER_DIR; };
-		53841CC926D9D7920021D27C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		53D9DAF226C1849D0071959E /* PlayCoverError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayCoverError.swift; sourceTree = "<group>"; };
 		53E3311126F574B600217197 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		53F3802526EB6CEA00D6B525 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -138,7 +131,6 @@
 		6E5C68B9289865C8008EC11B /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		6E66B0BE289DE6240099B907 /* StoreVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreVM.swift; sourceTree = "<group>"; };
 		6E66B0C8289F52800099B907 /* IPALibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPALibraryView.swift; sourceTree = "<group>"; };
-		6E66B0D0289F57B00099B907 /* Documentation.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = Documentation.docc; sourceTree = "<group>"; };
 		6E66B0D2289F5A010099B907 /* StoreAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreAppView.swift; sourceTree = "<group>"; };
 		6E66B0D428A0039D0099B907 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		6E66B0D828A135360099B907 /* ToastVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastVM.swift; sourceTree = "<group>"; };
@@ -158,9 +150,7 @@
 		8783CFF726B8C52D00171041 /* PlayCover.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlayCover.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8783CFFA26B8C52D00171041 /* PlayCoverApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayCoverApp.swift; sourceTree = "<group>"; };
 		8783CFFE26B8C52E00171041 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		8783D00126B8C52E00171041 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		8783D00326B8C52E00171041 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8783D00426B8C52E00171041 /* PlayCover.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PlayCover.entitlements; sourceTree = "<group>"; };
 		8783D00A26B8C9E600171041 /* URLExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLExtensions.swift; sourceTree = "<group>"; };
 		8FBBE76B2826709500F4FE9F /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		923421F6275F40300030CD7D /* AppContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
@@ -171,7 +161,6 @@
 		928C01D8272E162C007EB2DF /* InstallVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallVM.swift; sourceTree = "<group>"; };
 		92A8AAC8275EFEA800D89B50 /* SystemConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemConfig.swift; sourceTree = "<group>"; };
 		92B4D38E2737CF3D0001D7BB /* PlayTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayTools.swift; sourceTree = "<group>"; };
-		92D79316273C065A001CC964 /* libsandbox.1.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsandbox.1.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/lib/libsandbox.1.tbd; sourceTree = DEVELOPER_DIR; };
 		92ECD8A2274E75CD00DB7AC6 /* Installer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Installer.swift; sourceTree = "<group>"; };
 		92ECD8A4274E763700DB7AC6 /* IPA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPA.swift; sourceTree = "<group>"; };
 		92ECD8AD274E787200DB7AC6 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
@@ -220,7 +209,6 @@
 			files = (
 				68E48B9F29570A0400C39879 /* DataCache in Frameworks */,
 				68E48B9A295708C800C39879 /* Injection in Frameworks */,
-				365AFB0628847B2E008B3542 /* Sparkle in Frameworks */,
 				68E48BA229570A2B00C39879 /* CachedAsyncImage in Frameworks */,
 				AA818CB5287ABEC3000BEE9D /* Yams in Frameworks */,
 				B44E8CD32C31C50200542038 /* SwiftSoup in Frameworks */,
@@ -254,7 +242,7 @@
 				6E5C68B9289865C8008EC11B /* MainView.swift */,
 				ABED59822887A32F004D782B /* MenuBarView.swift */,
 				6E66B0D428A0039D0099B907 /* ToastView.swift */,
-				365AFB0728847B75008B3542 /* Sparkle.swift */,
+				365AFB0728847B75008B3542 /* UpdaterViewModel.swift */,
 				6ED6ACA328A949A30040D234 /* AppSettingsView.swift */,
 				B67C1A102AE8091F00F396CC /* StoreInfoAppView.swift */,
 				6E250970297F5281004D754C /* SigningSetupView.swift */,
@@ -272,11 +260,6 @@
 			isa = PBXGroup;
 			children = (
 				B17FD03828C70BAE00B1D4CA /* CoreUI.framework */,
-				92D79316273C065A001CC964 /* libsandbox.1.tbd */,
-				53468A4A2712917900887A08 /* libmis.tbd */,
-				53468A452712632800887A08 /* Security.tbd */,
-				53468A3E271236A800887A08 /* BaseBoard.tbd */,
-				53841CC926D9D7920021D27C /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -397,7 +380,6 @@
 		8783CFEE26B8C52D00171041 = {
 			isa = PBXGroup;
 			children = (
-				6E66B0D0289F57B00099B907 /* Documentation.docc */,
 				8783CFF926B8C52D00171041 /* PlayCover */,
 				8783CFF826B8C52D00171041 /* Products */,
 				53841CC826D9D7920021D27C /* Frameworks */,
@@ -428,20 +410,10 @@
 				349915322F8866A3005565D1 /* AppIcon.icon */,
 				349915342F8866A8005565D1 /* AppIcon.dev.icon */,
 				8783D00326B8C52E00171041 /* Info.plist */,
-				8783D00426B8C52E00171041 /* PlayCover.entitlements */,
-				8783D00026B8C52E00171041 /* Preview Content */,
 				532644E026E79E56002EA34D /* Localizable.strings */,
 				928C01D7272DF1A2007EB2DF /* PlayCover-Bridging-Header.h */,
 			);
 			path = PlayCover;
-			sourceTree = "<group>";
-		};
-		8783D00026B8C52E00171041 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				8783D00126B8C52E00171041 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		AA719640287A085200623C15 /* Rules */ = {
@@ -464,7 +436,7 @@
 				8783CFF426B8C52D00171041 /* Frameworks */,
 				8783CFF526B8C52D00171041 /* Resources */,
 				AA818CBC287AC1C6000BEE9D /* Copy Carthage frameworks */,
-				AAC28F222899A05B005057FB /* Codesign sparkle */,
+				AAC28F222899A05B005057FB /* Sign embedded frameworks */,
 				36E7AB27288A0B64004C0C3A /* SwiftLint */,
 			);
 			buildRules = (
@@ -474,7 +446,6 @@
 			name = PlayCover;
 			packageProductDependencies = (
 				AA818CB4287ABEC3000BEE9D /* Yams */,
-				365AFB0528847B2E008B3542 /* Sparkle */,
 				68E48B942957046D00C39879 /* DownloadManager */,
 				68E48B9E29570A0400C39879 /* DataCache */,
 				68E48BA129570A2B00C39879 /* CachedAsyncImage */,
@@ -530,7 +501,6 @@
 			mainGroup = 8783CFEE26B8C52D00171041;
 			packageReferences = (
 				AA818CB3287ABEC3000BEE9D /* XCRemoteSwiftPackageReference "Yams" */,
-				365AFB0428847B2E008B3542 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				68E48B932957046D00C39879 /* XCRemoteSwiftPackageReference "download-manager" */,
 				68E48B9D29570A0400C39879 /* XCRemoteSwiftPackageReference "DataCache" */,
 				68E48BA029570A2B00C39879 /* XCRemoteSwiftPackageReference "CachedAsyncImage" */,
@@ -553,7 +523,6 @@
 			files = (
 				349915352F8866A8005565D1 /* AppIcon.dev.icon in Resources */,
 				AA719649287A0E2500623C15 /* default.yaml in Resources */,
-				8783D00226B8C52E00171041 /* Preview Assets.xcassets in Resources */,
 				532644DE26E79E56002EA34D /* Localizable.strings in Resources */,
 				8783CFFF26B8C52E00171041 /* Assets.xcassets in Resources */,
 				349915332F8866A3005565D1 /* AppIcon.icon in Resources */,
@@ -580,7 +549,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [[ -z \"$FASTLANE\" ]]; then\n    export PATH=\"$PATH:/opt/homebrew/bin:/opt/local/bin\"\n    if which swiftlint > /dev/null; then\n        swiftlint\n    else\n        echo \"error: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\n        exit -1\n    fi\nfi\n";
+			shellScript = "if [[ \"${PLAYCOVER_SKIP_BUILD_SETUP:-0}\" != 1 ]]; then\n    export PATH=\"$PATH:/opt/homebrew/bin:/opt/local/bin\"\n    if which swiftlint > /dev/null; then\n        swiftlint\n    else\n        echo \"error: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\n        exit -1\n    fi\nfi\n";
 		};
 		AA818CBC287AC1C6000BEE9D /* Copy Carthage frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -602,7 +571,7 @@
 			shellPath = /bin/zsh;
 			shellScript = "set -euo pipefail\n\nif [ -x /usr/local/bin/carthage ]; then\n    carthage=/usr/local/bin/carthage\nelif [ -x /opt/homebrew/bin/carthage ]; then\n    carthage=/opt/homebrew/bin/carthage\nelif [ -x /opt/local/bin/carthage ]; then\n    carthage=/opt/local/bin/carthage\nelse\n    echo \"Cannot find carthage\"\n    exit 1\nfi\n\necho \"Copying PlayTools\"\n$carthage copy-frameworks\n\necho \"Handling AKInterface files\"\nmkdir -p \"${SCRIPT_OUTPUT_FILE_0}/PlugIns\"\nrm -rf   \"${SCRIPT_OUTPUT_FILE_0}/PlugIns/AKInterface.bundle\"\ncp -R    \"${SCRIPT_INPUT_FILE_0}/PlugIns/AKInterface.bundle\" \"${SCRIPT_OUTPUT_FILE_0}/PlugIns/AKInterface.bundle\"\n\necho \"Converting to maccatalyst\"\nvtool \\\n  -set-build-version maccatalyst 11.0 14.0 \\\n  -replace -output \\\n  \"${SCRIPT_OUTPUT_FILE_0}/PlayTools\" \\\n  \"${SCRIPT_OUTPUT_FILE_0}/PlayTools\" || true\n\necho \"Converting component bundles to maccatalyst\"\nfor bundle in \"${SCRIPT_OUTPUT_FILE_0}\"/PlugIns/*.bundle; do\n  [ -d \"$bundle\" ] || continue\n  name=\"$(basename \"$bundle\" .bundle)\"\n  if [ \"$name\" = \"AKInterface\" ]; then\n    continue\n  fi\n  exe=\"$bundle/$name\"\n  if [ -f \"$exe\" ]; then\n    vtool -set-build-version maccatalyst 11.0 14.0 -replace -output \"$exe\" \"$exe\" || true\n  fi\ndone\n\necho \"Rebundling shadow framework to deep framework structure\"\nFRAME=\"${SCRIPT_OUTPUT_FILE_0}\"\nNAME=\"PlayTools\"\n\nif [ -d \"$FRAME\" ] && [ ! -d \"$FRAME/Versions\" ]; then\n  echo \"Rebundling $NAME as macOS deep framework…\"\n\n  PARENT=\"$(dirname \"$FRAME\")\"\n  BASENAME=\"$(basename \"$FRAME\")\"\n  TMP=\"$PARENT/.${BASENAME}.rebundle\"\n\n  rm -rf \"$TMP\"\n  mkdir -p \"$TMP/Versions/A/Resources\" \"$TMP/Versions/A/Modules\" \"$TMP/Versions/A/PlugIns\"\n\n  echo \"moving shallow content to tmp A\"\n  [ -f \"$FRAME/$NAME\" ]      && cp -p \"$FRAME/$NAME\"      \"$TMP/Versions/A/$NAME\"\n  [ -d \"$FRAME/Headers\" ]    && cp -Rp \"$FRAME/Headers\"   \"$TMP/Versions/A/Headers\"\n  [ -d \"$FRAME/Modules\" ]    && cp -Rp \"$FRAME/Modules\"   \"$TMP/Versions/A/Modules\"\n  [ -f \"$FRAME/Info.plist\" ] && cp -p \"$FRAME/Info.plist\" \"$TMP/Versions/A/Resources/Info.plist\"\n\n  if [ -d \"$FRAME/Resources\" ]; then\n    ditto \"$FRAME/Resources\" \"$TMP/Versions/A/Resources\"\n  fi\n\n  for lproj in \"$FRAME\"/*.lproj; do\n    cp -Rp \"$lproj\" \"$TMP/Versions/A/Resources\"\n  done\n\n  if [ -d \"$FRAME/PlugIns\" ]; then\n    ditto \"$FRAME/PlugIns\" \"$TMP/Versions/A/PlugIns\"\n  fi\n\n  echo \"symlinking playtools\"\n  ln -s A \"$TMP/Versions/Current\"\n  ln -s Versions/Current/Resources \"$TMP/Resources\"\n  [ -d \"$TMP/Versions/A/Headers\" ] && ln -s Versions/Current/Headers \"$TMP/Headers\"\n  [ -d \"$TMP/Versions/A/Modules\" ] && ln -s Versions/Current/Modules \"$TMP/Modules\"\n  ln -s Versions/Current/$NAME \"$TMP/$NAME\"\n  [ -d \"$TMP/Versions/A/PlugIns\" ] && ln -s Versions/Current/PlugIns \"$TMP/PlugIns\"\n\n  rm -rf \"$FRAME\"\n  mv \"$TMP\" \"$FRAME\"\n\n  echo \"Rebundle done.\"\nfi\n";
 		};
-		AAC28F222899A05B005057FB /* Codesign sparkle */ = {
+		AAC28F222899A05B005057FB /* Sign embedded frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -612,14 +581,14 @@
 			);
 			inputPaths = (
 			);
-			name = "Codesign sparkle";
+			name = "Sign embedded frameworks";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nset -euo pipefail\n\nIDENTITY=${EXPANDED_CODE_SIGN_IDENTITY};\n# Apple Development: XIN LI (33X85HBRP6)\necho Signing identity $IDENTITY;\n\ncodesign --verbose --force --deep --sign \"$IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/PlayTools.framework/PlugIns/AKInterface.bundle\";\ncodesign --verbose --force --deep --sign \"$IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/PlayTools.framework\";\n\n# sign sparkle\n# I still dont know if we need sparkle\nLOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework\";\necho Sparkle Signing location $LOCATION;\ncodesign -f -o runtime -s \"$IDENTITY\" \"$LOCATION/Versions/B/Autoupdate\";\ncodesign -f -o runtime -s \"$IDENTITY\" \"$LOCATION/Versions/B/Updater.app\";\ncodesign -f -o runtime -s \"$IDENTITY\" \"$LOCATION/Versions/B/XPCServices/Downloader.xpc\";\ncodesign -f -o runtime -s \"$IDENTITY\" \"$LOCATION/Versions/B/XPCServices/Installer.xpc\";\ncodesign -f -o runtime -s \"$IDENTITY\" \"$LOCATION\";\n";
+			shellScript = "set -euo pipefail\n\nIDENTITY=${EXPANDED_CODE_SIGN_IDENTITY}\necho \"Signing embedded frameworks with $IDENTITY\"\n\ncodesign --verbose --force --deep --sign \"$IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/PlayTools.framework/PlugIns/AKInterface.bundle\"\ncodesign --verbose --force --deep --sign \"$IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/PlayTools.framework\"\n";
 		};
 		AAE8809C287ACA4900FBB23C /* Carthage Bootstrap */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -638,7 +607,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [[ -z \"$FASTLANE\" ]]; then\n    set -euo pipefail\n    echo \"Bootstraping carthage\"\n\n    if [ -x /usr/local/bin/carthage ]; then\n        carthage=/usr/local/bin/carthage\n    elif [ -x /opt/homebrew/bin/carthage ]; then\n        carthage=/opt/homebrew/bin/carthage\n    elif [ -x /opt/local/bin/carthage ]; then\n        carthage=/opt/local/bin/carthage\n    else\n        echo \"Cannot find carthage\"\n        exit 1\n    fi\n\n    env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin $carthage update --cache-builds --use-xcframeworks\nfi\n";
+			shellScript = "if [[ \"${PLAYCOVER_SKIP_BUILD_SETUP:-0}\" != 1 ]]; then\n    set -euo pipefail\n    echo \"Bootstrapping Carthage\"\n\n    if [ -x /usr/local/bin/carthage ]; then\n        carthage=/usr/local/bin/carthage\n    elif [ -x /opt/homebrew/bin/carthage ]; then\n        carthage=/opt/homebrew/bin/carthage\n    elif [ -x /opt/local/bin/carthage ]; then\n        carthage=/opt/local/bin/carthage\n    else\n        echo \"Cannot find carthage\"\n        exit 1\n    fi\n\n    env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin $carthage bootstrap --cache-builds --use-xcframeworks\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -656,7 +625,7 @@
 				B6825C3528F3D23600E3015A /* InstallSettings.swift in Sources */,
 				92EE06DE274EC09F002C907B /* Entitlements.swift in Sources */,
 				92ECD8A5274E763700DB7AC6 /* IPA.swift in Sources */,
-				365AFB0828847B75008B3542 /* Sparkle.swift in Sources */,
+				365AFB0828847B75008B3542 /* UpdaterViewModel.swift in Sources */,
 				92B4D38F2737CF3D0001D7BB /* PlayTools.swift in Sources */,
 				3665EF8928832400007CF915 /* PlayCoverSettingsView.swift in Sources */,
 				9280871B2824A8D20034C510 /* SoundDeviceService.swift in Sources */,
@@ -678,7 +647,6 @@
 				92EE06DA274EB009002C907B /* PlayApp.swift in Sources */,
 				B429B2642DC204FA001FF7D9 /* VersionCheck.swift in Sources */,
 				53F50C4926E3CA42007AD2D3 /* AppLibraryView.swift in Sources */,
-				6E66B0D1289F57B00099B907 /* Documentation.docc in Sources */,
 				53F3802826EB6F6B00D6B525 /* NotifyService.swift in Sources */,
 				6E5C68BA289865C8008EC11B /* MainView.swift in Sources */,
 				3447B5E52E28B46800FAA22F /* KeymapViewVM.swift in Sources */,
@@ -834,8 +802,6 @@
 				CURRENT_PROJECT_VERSION = 857;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_ASSET_PATHS = "PlayCover/Preview\\ Content";
-				DEVELOPMENT_TEAM = 792V9HMJW3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				EXCLUDED_ARCHS = x86_64;
@@ -851,7 +817,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = io.playcover.PlayCover;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Direct io.playcover.PlayCover macos";
 				RUN_DOCUMENTATION_COMPILER = NO;
 				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = off;
 				SWIFT_OBJC_BRIDGING_HEADER = "./PlayCover/PlayCover-Bridging-Header.h";
@@ -938,8 +903,6 @@
 				CURRENT_PROJECT_VERSION = 857;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_ASSET_PATHS = "PlayCover/Preview\\ Content";
-				DEVELOPMENT_TEAM = 792V9HMJW3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				EXCLUDED_ARCHS = x86_64;
@@ -955,7 +918,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = io.playcover.PlayCover;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Direct io.playcover.PlayCover macos";
 				RUN_DOCUMENTATION_COMPILER = NO;
 				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = off;
 				SWIFT_OBJC_BRIDGING_HEADER = "./PlayCover/PlayCover-Bridging-Header.h";
@@ -989,14 +951,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		365AFB0428847B2E008B3542 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparkle-project/Sparkle";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
 		68E48B932957046D00C39879 /* XCRemoteSwiftPackageReference "download-manager" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/shapedbyiris/download-manager.git";
@@ -1049,11 +1003,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		365AFB0528847B2E008B3542 /* Sparkle */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 365AFB0428847B2E008B3542 /* XCRemoteSwiftPackageReference "Sparkle" */;
-			productName = Sparkle;
-		};
 		68E48B942957046D00C39879 /* DownloadManager */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 68E48B932957046D00C39879 /* XCRemoteSwiftPackageReference "download-manager" */;

@@ -9,10 +9,6 @@ class AppIntegrity: ObservableObject {
 
     @Published var integrityOff: Bool = !AppIntegrity.insideAppsFolder
 
-    func verifyAppIntegrity() {
-        integrityOff = !AppIntegrity.insideAppsFolder
-    }
-
     func moveToApps() {
         do {
             if let url = AppIntegrity.appUrl {

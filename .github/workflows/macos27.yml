@@ -41,7 +41,7 @@ jobs:
         run: carthage bootstrap --use-xcframeworks --cache-builds
       - name: Build with ad hoc signing
         env:
-          FASTLANE: '1'
+          PLAYCOVER_SKIP_BUILD_SETUP: '1'
         run: |
           xcodebuild -project PlayCover.xcodeproj -scheme PlayCover -configuration Release \
             -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \

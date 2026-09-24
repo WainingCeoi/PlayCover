@@ -1,62 +1,59 @@
-name: Bug Report
-description: File a bug report.
+name: Bug report
+description: Report a crash, incorrect behavior, or performance problem in the macOS 27 fork.
 title: "[Bug]: "
 labels: ["bug"]
 body:
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Before reporting
+      options:
+        - label: I am using this fork on macOS 27 and checked for an existing issue.
+          required: true
+  - type: input
+    id: pc-version
+    attributes:
+      label: PlayCover version and build
+      description: Copy the version and build from About PlayCover, or give the source commit for a local build.
+      placeholder: 3.1.1 (857)
+    validations:
+      required: true
+  - type: input
+    id: mac-version
+    attributes:
+      label: macOS 27 version and build
+      description: Run sw_vers in Terminal or copy the details from About This Mac.
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Mac chip and memory
+      placeholder: M2 Pro, 16 GB
+    validations:
+      required: true
   - type: textarea
     id: describe-bug
     attributes:
-      label: Describe the bug
-      description: A clear and concise description of what the bug is.
+      label: What happened?
+      description: Include the exact error message or describe the slow operation and how long it takes.
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
       label: Steps to reproduce
-      description: Step-by-step instructions to produce the unexpected behaviour.
+      description: Include relevant settings and app versions so someone else can reproduce the problem.
     validations:
       required: true
   - type: textarea
     id: expected-behaviour
     attributes:
-      label: Expected behaviour
-      description: A clear and concise description of what you expected to happen.
+      label: Expected behavior
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Crash log
-      description: Copy and paste in any relevant crash logs in plain text.
-      render: shell
-  - type: dropdown
-    id: pc-version
-    attributes:
-      label: What version of PlayCover are you using?
-      options:
-        - "4.0.0"
-        - "3.1.0"
-        - "Nightly/beta (please specify build number)"
-        - "Other (please specify)"
-    validations:
-        required: true
-  - type: dropdown
-    id: mac-version
-    attributes:
-      label: What version of macOS are you using?
-      options:
-        - "Tahoe (macOS 26)"
-        - "Sequoia (macOS 15)"
-        - "Sonoma (macOS 14)"
-        - "macOS beta (please state the specific version)"
-        - "Other (please specify)"
-    validations:
-      required: true
-  - type: checkboxes
-    attributes:
-      label: Issue Language
-      description: All issues must be written in clear plain English so that all devs are able to read them.
-      options:
-        - label: Yes my issue is written in English
-          required: true
+      label: Logs or screenshots
+      description: Attach relevant crash reports, logs, or screenshots. Remove personal information and private source URLs before posting.

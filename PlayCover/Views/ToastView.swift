@@ -17,15 +17,6 @@ struct ToastView: View {
     var body: some View {
         if toastVM.isShown {
             VStack(spacing: -20) {
-                // remove spacing for liquid glass toast to prevent the background blur that accompanies the toast when
-                // scrolling down in either of the library views
-                #if compiler(>=6.2)
-                if #unavailable(macOS 26.0) {
-                    Spacer()
-                }
-                #else
-                Spacer()
-                #endif
                 ForEach(toastVM.toasts, id: \.self) { toast in
                     HStack {
                         switch toast.toastType {

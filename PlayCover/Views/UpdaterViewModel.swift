@@ -1,5 +1,5 @@
 //
-//  Sparkle.swift
+//  UpdaterViewModel.swift
 //  PlayCover
 //
 //  Created by Andrew Glaze on 7/17/22.

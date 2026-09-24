@@ -1,9 +1,5 @@
 @import Cocoa;
 
-@class CUIRenditionSliceInformation;
-@interface CUIRenditionKey : NSObject <NSCopying, NSCoding>
-@end
-
 @interface CUIThemeRendition : NSObject
 - (nullable CGImageRef)unslicedImage;
 @end

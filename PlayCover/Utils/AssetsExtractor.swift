@@ -22,14 +22,6 @@ enum AssetError: Error {
 struct AssetsExtractor {
     let catalog: CUICatalog
 
-    var imagesList: [AssetImage] {
-        var tmpArray = [AssetImage]()
-        for imageName in self.catalog.allImageNames() {
-            tmpArray.append(assetImage(from: imageName))
-        }
-        return tmpArray
-    }
-
     init(appUrl url: URL) throws {
         let assetUrl = url.appendingPathComponent("Assets").appendingPathExtension("car")
         guard FileManager.default.fileExists(atPath: assetUrl.path) else {
