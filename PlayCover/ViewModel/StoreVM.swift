@@ -6,15 +6,28 @@
 //
 
 import Foundation
+import Combine
 
 class StoreVM: ObservableObject, @unchecked Sendable {
     public static let shared = StoreVM()
     private let plistSource: URL
+    private let loadData: (URLRequest) async throws -> (Data, URLResponse)
+    private let isConnected: () -> Bool
 
-    private init() {
-        plistSource = PlayTools.playCoverContainer
+    private convenience init() {
+        self.init(plistSource: PlayTools.playCoverContainer
             .appendingPathComponent("Sources")
-            .appendingPathExtension("plist")
+            .appendingPathExtension("plist"))
+    }
+
+    init(plistSource: URL,
+         loadData: @escaping (URLRequest) async throws -> (Data, URLResponse) = {
+             try await URLSession.shared.data(for: $0)
+         },
+         isConnected: @escaping () -> Bool = NetworkVM.isConnectedToNetwork) {
+        self.plistSource = plistSource
+        self.loadData = loadData
+        self.isConnected = isConnected
         sourcesList = []
         if !decode() { encode() }
         resolveSources()
@@ -33,27 +46,27 @@ class StoreVM: ObservableObject, @unchecked Sendable {
     @Published var sourcesApps: [SourceAppsData] = []
 
     private var resolveTask: Task<Void, Never>?
+    private var resolveGeneration = UUID()
 
     public func getEnabledSources() -> [SourceJSON] {
-        return StoreVM.shared.sourcesData.filter { sourceJSON in
-            return StoreVM.shared.sourcesList.contains { sourceData in
+        return sourcesData.filter { sourceJSON in
+            return sourcesList.contains { sourceData in
                 sourceData.id == sourceJSON.id && sourceData.isEnabled
             }
         }
     }
 
     func enableSourceToggle(source: SourceData, value: Bool) {
-        if let index = sourcesList.firstIndex(of: source) {
+        if let index = sourcesList.firstIndex(where: { $0.id == source.id }) {
             sourcesList[index].isEnabled = value
         }
         updateSourcesApps()
     }
 
     func updateSourcesApps() {
-        sourcesApps.removeAll()
-        let enabledSources: [SourceJSON] = getEnabledSources()
-        for source in enabledSources {
-            appendSourceData(source)
+        var bundleIDs = Set<String>()
+        sourcesApps = getEnabledSources().flatMap(\.data).filter {
+            bundleIDs.insert($0.bundleID).inserted
         }
     }
 
@@ -65,9 +78,16 @@ class StoreVM: ObservableObject, @unchecked Sendable {
 
     //
     func deleteSource(_ selectedSource: inout Set<UUID>) {
-        sourcesList.removeAll {
-            selectedSource.contains($0.id)
-        }
+        removeSources(ids: selectedSource)
+        selectedSource.removeAll()
+    }
+
+    func removeSources(ids: Set<UUID>) {
+        guard !ids.isEmpty else { return }
+        sourcesList.removeAll { ids.contains($0.id) }
+        // Remove cached content immediately, even while offline or after deleting
+        // the last source. Cancelled requests must not restore it later.
+        sourcesData.removeAll { ids.contains($0.id) }
         resolveSources()
     }
 
@@ -115,19 +135,30 @@ class StoreVM: ObservableObject, @unchecked Sendable {
     //
     func resolveSources() {
         resolveTask?.cancel()
+        resolveGeneration = UUID()
+        let generation = resolveGeneration
+        let sources = sourcesList
+        let sourceIDs = Set(sources.map(\.id))
+        sourcesData.removeAll { !sourceIDs.contains($0.id) }
+        guard isConnected() && !sources.isEmpty else {
+            resolveTask = nil
+            return
+        }
+        sourcesData.removeAll()
         resolveTask = Task { @MainActor in
 
-            guard NetworkVM.isConnectedToNetwork() && !sourcesList.isEmpty else { return }
-
-            let sourcesCount = sourcesList.count
-            sourcesData.removeAll()
-
-            for index in sourcesList.indices {
+            for source in sources {
+                guard !Task.isCancelled, generation == resolveGeneration,
+                      let index = sourcesList.firstIndex(where: {
+                          $0.id == source.id && $0.source == source.source
+                      }) else { return }
                 sourcesList[index].status = .checking
-                let (sourceJson, sourceState) = await getSourceData(sourceLink: sourcesList[index].source,
-                                                                    sourceId: sourcesList[index].id)
-                guard sourcesCount == sourcesList.count else { return }
-                sourcesList[index].status = sourceState
+                let (sourceJson, sourceState) = await getSourceData(sourceLink: source.source, sourceId: source.id)
+                guard !Task.isCancelled, generation == resolveGeneration,
+                      let currentIndex = sourcesList.firstIndex(where: {
+                          $0.id == source.id && $0.source == source.source
+                      }) else { return }
+                sourcesList[currentIndex].status = sourceState
                 if sourceState == .valid, let sourceJson {
                     sourcesData.append(sourceJson)
                 }
@@ -151,7 +182,7 @@ class StoreVM: ObservableObject, @unchecked Sendable {
 
         do {
             let data = try encoder.encode(sourcesList)
-            try data.write(to: plistSource)
+            try data.write(to: plistSource, options: .atomic)
             return true
         } catch {
             print("StoreVM: Failed to encode Sources.plist! ", error)
@@ -176,8 +207,8 @@ class StoreVM: ObservableObject, @unchecked Sendable {
         guard let url = URL(string: sourceLink) else { return (nil, .badurl) }
         var dataToDecode: Data?
         do {
-            let (data, response) = try await URLSession.shared.data(
-                for: URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
+            let (data, response) = try await loadData(
+                URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
             )
             if !url.isFileURL {
                 guard (response as? HTTPURLResponse)?.statusCode == 200 else { return (nil, .badurl) }
@@ -190,7 +221,10 @@ class StoreVM: ObservableObject, @unchecked Sendable {
         guard let unwrappedData = dataToDecode else { return (nil, .badurl) }
         var decodedData: SourceJSON?
         do {
-            decodedData = try JSONDecoder().decode(SourceJSON.self, from: unwrappedData)
+            let source = try JSONDecoder().decode(SourceJSON.self, from: unwrappedData)
+            // Remote IDs are not unique across configured sources. Match decoded
+            // content to the locally persisted identity used by selection/deletion.
+            decodedData = SourceJSON(name: source.name, data: source.data, id: sourceId)
             return (decodedData, .valid)
         } catch {
             do {
@@ -204,13 +238,6 @@ class StoreVM: ObservableObject, @unchecked Sendable {
                 debugPrint("Error decoding data from URL: \(url): \(error)")
                 return (nil, .badjson)
             }
-        }
-    }
-
-    //
-    private func appendSourceData(_ source: SourceJSON) {
-        for app in source.data where !sourcesApps.contains(where: { $0.bundleID == app.bundleID }) {
-            sourcesApps.append(app)
         }
     }
 

@@ -36,7 +36,6 @@ extension SourceData: Codable {
 
 struct IPASourceSettings: View {
     @State var selected = Set<UUID>()
-    @State var selectedNotEmpty = false
     @State var addSourceSheet = false
     @State var triggerUpdate = false
     @EnvironmentObject var storeVM: StoreVM
@@ -47,8 +46,10 @@ struct IPASourceSettings: View {
                 List(storeVM.sourcesList, id: \.id, selection: $selected) { source in
                     SourceView(source: source,
                                isEnabled: source.isEnabled)
+                        .tag(source.id)
                 }
                 .listStyle(.bordered(alternatesRowBackgrounds: true))
+                .onDeleteCommand { storeVM.deleteSource(&selected) }
                 Spacer()
                     .frame(width: 20)
                 VStack {
@@ -64,7 +65,7 @@ struct IPASourceSettings: View {
                         Text("preferences.button.deleteSource")
                             .frame(width: 130)
                     }
-                    .disabled(!selectedNotEmpty)
+                    .disabled(selected.isEmpty)
                     Spacer()
                         .frame(height: 20)
                     Button {
@@ -73,14 +74,14 @@ struct IPASourceSettings: View {
                         Text("preferences.button.moveSourceUp")
                             .frame(width: 130)
                     }
-                    .disabled(!selectedNotEmpty)
+                    .disabled(selected.isEmpty)
                     Button {
                         storeVM.moveSourceDown(&selected)
                     } label: {
                         Text("preferences.button.moveSourceDown")
                             .frame(width: 130)
                     }
-                    .disabled(!selectedNotEmpty)
+                    .disabled(selected.isEmpty)
                     Spacer()
                         .frame(height: 20)
                     Button {
@@ -91,9 +92,6 @@ struct IPASourceSettings: View {
                     }
                 }
             }
-        }
-        .onChange(of: selected) { data in
-            selectedNotEmpty = data.count > 0
         }
         .padding(20)
         .frame(width: 600, height: 300, alignment: .center)
@@ -111,9 +109,15 @@ struct SourceView: View {
 
     var body: some View {
         HStack {
-            Toggle(source.source, isOn: $isEnabled)
-            .foregroundStyle(isEnabled ? .primary : .secondary)
-            .help("state.enabled")
+            Toggle("state.enabled", isOn: $isEnabled)
+                .labelsHidden()
+                .accessibilityLabel(Text(source.source))
+                .help("state.enabled")
+            Text(source.source)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .foregroundStyle(isEnabled ? .primary : .secondary)
+                .help(source.source)
             Spacer()
             switch source.status {
             case .badjson:

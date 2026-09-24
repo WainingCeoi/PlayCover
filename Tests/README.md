@@ -7,5 +7,6 @@ Run `bash scripts/test-macos27.sh` on an Apple Silicon Mac with macOS 27 and the
 - `test-macho.sh` checks malformed Mach-O input, load-command boundaries, universal binary slices, conversion, and safe file replacement using the production parser.
 
 - `test-installation.sh` checks staging and replacement, preserving the installed app on preparation failure, first installation, and exported IPA archive structure/replacement.
+- `test-sources.sh` checks source removal, persistence, duplicate catalog identities, and cancelled refreshes using isolated catalog fixtures.
 
 The `macOS 27 validation` workflow uses GitHub's `xcode-27` runner and separately builds the full application with ad hoc signing. A complete local build requires Xcode 27, Carthage, SwiftLint, network access for dependencies, and the PlayTools framework. These regressions do not establish compatibility with every iOS app, private framework, game server, or runtime feature.

@@ -62,9 +62,30 @@ At the moment, PlayCover can only run on Apple Silicon Macs. This means that onl
 
 If you have an Intel Mac, you can explore alternatives like Bootcamp or emulators.
 
-### Building this macOS 27 fork
+### Downloading this macOS 27 fork
 
-Use Xcode 27 with the macOS 27 SDK, Carthage, and SwiftLint. The deployment target is macOS 27. Focused regression checks also run with the macOS 27 Command Line Tools: `bash scripts/test-macos27.sh`. See [test instructions](Tests/README.md) for coverage and full-build requirements.
+Open this fork's **Actions → macOS 27 validation** workflow and choose a successful run for the branch you want. Download the **PlayCover-macOS27-arm64** artifact at the bottom of the run page (GitHub sign-in is required). Extract the downloaded ZIP, open `PlayCover-macOS27-arm64.dmg`, quit PlayCover, and drag the app to **Applications**. Keep a copy of the previous app if you want to revert. This replaces the app bundle without uninstalling your games.
+
+These preview builds are ad hoc signed and are not notarized. If macOS blocks opening a build you trust, try opening it once, then use **System Settings → Privacy & Security → Open Anyway**. The artifact includes a checksum and the source commit in `BUILD_INFO.txt`.
+
+### Building this macOS 27 fork locally
+
+Install Xcode 27, select it with `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`, and install Carthage and SwiftLint (`brew install carthage swiftlint`). From the repository directory:
+
+```sh
+carthage update --use-xcframeworks --cache-builds
+FASTLANE=1 xcodebuild -project PlayCover.xcodeproj -scheme PlayCover -configuration Release \
+  -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
+  CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
+  PROVISIONING_PROFILE_SPECIFIER= build
+bash scripts/package-macos27.sh
+```
+
+The installable disk image is `build/download/PlayCover-macOS27-arm64.dmg`. Focused regression checks also run with the macOS 27 Command Line Tools: `bash scripts/test-macos27.sh`. See [test instructions](Tests/README.md) for coverage.
+
+### Removing a remote IPA source
+
+Right-click the source folder under **IPA Library** and choose **Delete Source**, or open that source and click the trash button in its toolbar. You can also use **PlayCover → Settings → IPA Sources**: select one or more rows, then click **Delete Source** or press Delete. Removing a source removes its catalog from PlayCover; it does not uninstall apps already installed from it. Hover over similarly named sidebar entries to see their source URLs.
 
 The upstream downloads below do not include unmerged changes from this fork.
 

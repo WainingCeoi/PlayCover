@@ -23,6 +23,7 @@ jobs:
         run: bash scripts/test-macos27.sh
 
   build:
+    needs: regressions
     runs-on: xcode-27
     timeout-minutes: 45
     steps:
@@ -46,3 +47,15 @@ jobs:
             -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
             CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
             PROVISIONING_PROFILE_SPECIFIER= build
+      - name: Package downloadable app
+        run: bash scripts/package-macos27.sh
+      - name: Upload macOS 27 app
+        uses: actions/upload-artifact@v7
+        with:
+          name: PlayCover-macOS27-arm64
+          path: |
+            build/download/PlayCover-macOS27-arm64.dmg
+            build/download/SHA256SUMS
+            build/download/BUILD_INFO.txt
+          if-no-files-found: error
+          retention-days: 30
