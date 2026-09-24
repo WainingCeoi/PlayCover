@@ -38,13 +38,14 @@ jobs:
           command -v carthage >/dev/null || brew install carthage
           command -v swiftlint >/dev/null || brew install swiftlint
       - name: Build PlayTools
-        run: carthage update --use-xcframeworks --cache-builds
+        run: carthage bootstrap --use-xcframeworks --cache-builds
       - name: Build with ad hoc signing
         env:
           FASTLANE: '1'
         run: |
           xcodebuild -project PlayCover.xcodeproj -scheme PlayCover -configuration Release \
             -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
+            -disableAutomaticPackageResolution \
             CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
             PLAYCOVER_SIGNING_ENTITLEMENTS=PlayCover/PlayCoverPreview.entitlements \
             CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
@@ -56,8 +57,10 @@ jobs:
         with:
           name: PlayCover-macOS27-arm64
           path: |
-            build/download/PlayCover-macOS27-arm64.dmg
+            build/download/PlayCover-*-macOS27-arm64.dmg
             build/download/SHA256SUMS
             build/download/BUILD_INFO.txt
+            build/download/Cartfile.resolved
+            build/download/Package.resolved
           if-no-files-found: error
           retention-days: 30

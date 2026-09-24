@@ -8,6 +8,7 @@
 /output
 /apikey.json
 Package.resolved
+!/PlayCover.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 
 ## User settings
 xcuserdata/
