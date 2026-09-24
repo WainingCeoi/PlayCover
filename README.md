@@ -77,11 +77,13 @@ carthage update --use-xcframeworks --cache-builds
 FASTLANE=1 xcodebuild -project PlayCover.xcodeproj -scheme PlayCover -configuration Release \
   -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
   CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
+  CODE_SIGN_ENTITLEMENTS=PlayCover/PlayCoverPreview.entitlements \
+  CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
   PROVISIONING_PROFILE_SPECIFIER= build
 bash scripts/package-macos27.sh
 ```
 
-The installable disk image is `build/download/PlayCover-macOS27-arm64.dmg`. Focused regression checks also run with the macOS 27 Command Line Tools: `bash scripts/test-macos27.sh`. See [test instructions](Tests/README.md) for coverage.
+The installable disk image is `build/download/PlayCover-macOS27-arm64.dmg`. Packaging verifies the signatures and launches the executable in an isolated startup-check mode before creating the DMG. Ad hoc builds use a dedicated preview entitlement so macOS can load the bundled Sparkle framework without an Apple Developer Team ID. Normal Developer ID release entitlements are unchanged. Focused regression checks also run with the macOS 27 Command Line Tools: `bash scripts/test-macos27.sh`. See [test instructions](Tests/README.md) for coverage.
 
 ### Removing a remote IPA source
 

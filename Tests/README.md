@@ -8,5 +8,8 @@ Run `bash scripts/test-macos27.sh` on an Apple Silicon Mac with macOS 27 and the
 
 - `test-installation.sh` checks staging and replacement, preserving the installed app on preparation failure, first installation, and exported IPA archive structure/replacement.
 - `test-sources.sh` checks source removal, persistence, duplicate catalog identities, and cancelled refreshes using isolated catalog fixtures.
+- `test-preview-signing.sh` checks that the production preview entitlements allow an ad hoc signed process to load its embedded library with hardened runtime enabled.
+
+After a full build, `bash scripts/test-built-app.sh /path/to/PlayCover.app` runs the real executable with `--validate-startup` and a timeout. This mode exits before initializing PlayCover's app state, user data, network requests, or UI. It detects loader and framework-signing failures; it does not test windows or game launches. DMG packaging requires this check to pass.
 
 The `macOS 27 validation` workflow uses GitHub's `xcode-27` runner and separately builds the full application with ad hoc signing. A complete local build requires Xcode 27, Carthage, SwiftLint, network access for dependencies, and the PlayTools framework. These regressions do not establish compatibility with every iOS app, private framework, game server, or runtime feature.

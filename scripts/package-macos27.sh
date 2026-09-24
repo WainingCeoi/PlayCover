@@ -10,6 +10,9 @@ fi
 
 # Preserve the executable permissions, symlinks, and signatures inside the disk image.
 /usr/bin/codesign --verify --deep --strict "$app_path"
+# Loading the actual executable catches dyld/signing failures that static
+# signature verification cannot detect, without initializing app data or UI.
+bash "$(dirname "$0")/test-built-app.sh" "$app_path"
 mkdir -p "$output_dir"
 staging_dir=$(mktemp -d)
 trap 'rm -rf "$staging_dir"' EXIT

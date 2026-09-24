@@ -12,3 +12,4 @@ bash scripts/test-library.sh
 bash scripts/test-macho.sh
 bash scripts/test-installation.sh
 bash scripts/test-sources.sh
+bash scripts/test-preview-signing.sh
