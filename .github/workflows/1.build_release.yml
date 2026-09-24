@@ -10,6 +10,8 @@ env:
   CI: true
 jobs:
   build:
+    # The upstream signing certificates are not available in community forks.
+    if: github.repository == 'PlayCover/PlayCover'
     runs-on: xcode-27
     env:
       GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
